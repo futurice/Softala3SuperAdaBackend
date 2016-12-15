@@ -14,7 +14,7 @@ server.register(require('hapi-auth-jwt2'), (err) => {
   server.auth.strategy('jwt', 'jwt', {
     key: config.secret,
     validateFunc: (decoded, request, callback) => {
-          callback(null, true);
+      callback(null, true);
     },
     verifyOptions: { algorithms: ['HS256'] }
   });
@@ -22,8 +22,8 @@ server.register(require('hapi-auth-jwt2'), (err) => {
 });
 
 server.start((err) => {
-    if (err) {
-        throw err;
-    }
-    console.log(`Server running at: ${server.info.uri}`);
+  if (err) {
+    throw err;
+  }
+  console.log(`Server running at: ${server.info.uri}`);
 });

@@ -4,10 +4,10 @@ var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
 exports.getTeam = function(name, callback){
-    knex.select("teamId").from("Team").where({"teamName": name })
+  knex.select("teamId").from("Team").where({"teamName": name })
     .then(function(results) {
       callback(null, results);
-      })
+    })
     .catch(function(err) {
       if(logErrors){
         console.log('Something went wrong!', err);
@@ -22,13 +22,14 @@ exports.getDetails = function(teamId, callback){
     FROM "Team"
     LEFT JOIN "Document" on "Document"."docId" = "Team"."docId"
     WHERE "Team"."teamId" = 27;
-  */    knex.select('Team.teamName', 'Team.description', 'Document.file')
+    */
+  knex.select('Team.teamName', 'Team.description', 'Document.file')
     .from("Team")
     .leftJoin('Document', 'Document.docId', 'Team.docId')
     .where({"teamId": teamId })
     .then(function(results) {
       callback(null, results);
-      })
+    })
     .catch(function(err) {
       if(logErrors){
         console.log('Something went wrong!', err);
@@ -38,7 +39,7 @@ exports.getDetails = function(teamId, callback){
 };
 
 exports.addTeam = function(team, callback){
-    knex.select("teamId")
+  knex.select("teamId")
     .from("Team")
     .where({"teamName": team.teamName })
     .then(function(result) {
@@ -50,16 +51,16 @@ exports.addTeam = function(team, callback){
         callback("Duplicate name", null);
       }else{
         knex("Team").insert(team)
-        .returning("teamId")
-        .then(function(re) {
-          callback(null, re);
+          .returning("teamId")
+          .then(function(re) {
+            callback(null, re);
           })
-        .catch(function(err) {
-          if(logErrors){
-            console.log('Something went wrong!', err);
-          }
-          callback(err);
-        });
+          .catch(function(err) {
+            if(logErrors){
+              console.log('Something went wrong!', err);
+            }
+            callback(err);
+          });
       }
     })
     .catch(function(err) {
@@ -68,67 +69,67 @@ exports.addTeam = function(team, callback){
       }
       callback(err);
     });
-  };
+};
 
-  // getTeamList: Get list of teams. takes in searchfilter
-  exports.getTeamList = function(searchfilter, companyId, callback){
-    var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,\/{}|\\":<>\?]/); //unacceptable chars
-    if (pattern.test(searchfilter)) {
-        searchfilter ="";//Empty string for safety
-        if(logErrors){
-            console.log("Illegal chars in search field")
-        }
+// getTeamList: Get list of teams. takes in searchfilter
+exports.getTeamList = function(searchfilter, companyId, callback){
+  var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,\/{}|\\":<>\?]/); //unacceptable chars
+  if (pattern.test(searchfilter)) {
+    searchfilter ="";//Empty string for safety
+    if(logErrors){
+      console.log("Illegal chars in search field")
+    }
+  }
+
+  var lowercaseSF = searchfilter.toLowerCase()
+  knex.select('Team.*', 'CompanyPoint.point', 'Document.file')
+    .from("Team")
+    .joinRaw('LEFT JOIN "CompanyPoint" on "Team"."teamId" = "CompanyPoint"."teamId" AND "CompanyPoint"."companyId" = '+ companyId+ ' ')
+    .leftJoin('Document', 'Document.docId', 'Team.docId')
+    .whereRaw(' LOWER( "teamName" ) LIKE ' + '\'%'+lowercaseSF+'%\'')
+    .orderBy('Team.teamName', 'asc')
+    .then(function(results) {
+      callback(null, results);
+    })
+    .catch(function(err) {
+      if(logErrors){
+        console.log('Something went wrong!', err);
       }
+      callback(err);
+    });
+};
 
-      var lowercaseSF = searchfilter.toLowerCase()
-      knex.select('Team.*', 'CompanyPoint.point', 'Document.file')
-      .from("Team")
-      .joinRaw('LEFT JOIN "CompanyPoint" on "Team"."teamId" = "CompanyPoint"."teamId" AND "CompanyPoint"."companyId" = '+ companyId+ ' ')
-      .leftJoin('Document', 'Document.docId', 'Team.docId')
-      .whereRaw(' LOWER( "teamName" ) LIKE ' + '\'%'+lowercaseSF+'%\'')
-      .orderBy('Team.teamName', 'asc')
-      .then(function(results) {
-        callback(null, results);
-        })
-      .catch(function(err) {
-        if(logErrors){
-          console.log('Something went wrong!', err);
-        }
-        callback(err);
-      });
-  };
+exports.attachDocumentToTeam = function(docId, teamId, callback){
 
-  exports.attachDocumentToTeam = function(docId, teamId, callback){
-
-    knex("Team")
+  knex("Team")
     .where('teamId', '=', teamId)
     .update({
       docId: docId
     })
     .then(function(results) {
       callback(null, results);
-      })
+    })
     .catch(function(err) {
       if(logErrors){
         console.log('Something went wrong!', err);
       }
       callback(err);
     });
-  };
+};
 
-  exports.updateTeamDescription = function(teamId, description, callback){
-    knex("Team")
+exports.updateTeamDescription = function(teamId, description, callback){
+  knex("Team")
     .where('teamId', '=', teamId)
     .update({
       description: description
     })
     .then(function(results) {
       callback(null, results);
-      })
+    })
     .catch(function(err) {
       if(logErrors){
         console.log('Something went wrong!', err);
       }
       callback(err);
     });
-  };
+};

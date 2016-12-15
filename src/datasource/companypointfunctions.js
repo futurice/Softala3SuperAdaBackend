@@ -4,7 +4,7 @@ var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
 exports.addCompanyPoint = function(companypoint, callback) {
-    knex.select('*')
+  knex.select('*')
     .from('CompanyPoint')
     .where({"teamId": companypoint.teamId,"companyId": companypoint.companyId })
     .then(function(result){
@@ -15,37 +15,37 @@ exports.addCompanyPoint = function(companypoint, callback) {
 
       if(exists){//Update old row
         knex('CompanyPoint')
-        .where('pointId', '=', result[0].pointId)
-        .update({
-          point: companypoint.point
-        })
-        .then(function(insertResult) {
-           callback(null, insertResult);
-         })
-         .catch(function(err) {
-           if(logErrors){
-             console.log('Something went wrong!', err);
-           }
-           callback(err);
-         });
+          .where('pointId', '=', result[0].pointId)
+          .update({
+            point: companypoint.point
+          })
+          .then(function(insertResult) {
+            callback(null, insertResult);
+          })
+          .catch(function(err) {
+            if(logErrors){
+              console.log('Something went wrong!', err);
+            }
+            callback(err);
+          });
       }else{//insert new row
         knex('CompanyPoint')
-        .insert(companypoint)
-        .then(function(insertResult) {
-             callback(null, insertResult);
-           })
-           .catch(function(err) {
-             if(logErrors){
-               console.log('Something went wrong!', err);
-             }
-             callback(err);
-           });
+          .insert(companypoint)
+          .then(function(insertResult) {
+            callback(null, insertResult);
+          })
+          .catch(function(err) {
+            if(logErrors){
+              console.log('Something went wrong!', err);
+            }
+            callback(err);
+          });
       }
     })
 };
 
 exports.clearCompanyPoint = function(clearPoints, callback) {
-    knex.select('*')
+  knex.select('*')
     .from('CompanyPoint')
     .where({"teamId": clearPoints.teamId,"companyId": clearPoints.companyId })
     .then(function(result) {
@@ -55,17 +55,17 @@ exports.clearCompanyPoint = function(clearPoints, callback) {
       }
       if(exists) {
         knex('CompanyPoint')
-        .del()
-        .where('pointId', '=', result[0].pointId)
-        .then(function(insertResult) {
-           callback(null, insertResult);
-         })
-         .catch(function(err) {
-           if(logErrors){
-             console.log('Something went wrong!', err);
-           }
-           callback(err);
-         });
+          .del()
+          .where('pointId', '=', result[0].pointId)
+          .then(function(insertResult) {
+            callback(null, insertResult);
+          })
+          .catch(function(err) {
+            if(logErrors){
+              console.log('Something went wrong!', err);
+            }
+            callback(err);
+          });
       } else {
         callback(null);
       }
@@ -74,15 +74,15 @@ exports.clearCompanyPoint = function(clearPoints, callback) {
 
 exports.getCompanyPoints = function(teamId, callback) {
   knex.sum('point')
-  .from('CompanyPoint')
-  .where({"teamId": teamId})
+    .from('CompanyPoint')
+    .where({"teamId": teamId})
     .then(function(results) {
       callback(null, results);
-      })
+    })
     .catch(function(err) {
       if(logErrors){
         console.log('Something went wrong!', err);
       }
       callback(err);
     });
-  };
+};

@@ -5,7 +5,7 @@ var secret = 'really_secret_key';//gen 2040 bit of random stuff
 var jwt = require('jsonwebtoken');
 
 exports.checkIfTeamNameAvailable = function(req, res) {
-    return true; // TODO
+  return true; // TODO
 }
 
 exports.hashPassword = function(password) { // TODO
@@ -45,21 +45,21 @@ exports.verifyCredentials = function(req, res) {
   const login = req.payload.login;
 
   return knex.select('id', 'password', 'name').from('admin').where('name', login)
-  .then(function(rows) {
-    if (!rows.length) {
-      throw exeption("Bad request authutil r:48"); // not found
-    }
+    .then(function(rows) {
+      if (!rows.length) {
+        throw exeption("Bad request authutil r:48"); // not found
+      }
 
-    const user = rows[0];
-    bcrypt.compare(password, user.password, (err, isValid) => {
-      if (isValid) {
-        res(user);
-      }
-      else {
-        throw exeption("Bad request authutil r:57"); //password/user dont match
-      }
+      const user = rows[0];
+      bcrypt.compare(password, user.password, (err, isValid) => {
+        if (isValid) {
+          res(user);
+        }
+        else {
+          throw exeption("Bad request authutil r:57"); //password/user dont match
+        }
+      });
     });
-  });
 }
 
 // Get EMPLOYEE data from jwt
@@ -91,7 +91,7 @@ exports.bindAdminData = function(req, res) {
 
 // Get data from jwt
 exports.bindTeamData = function(req, res){
-const bearerToken = req.headers.authorization.slice(7);
+  const bearerToken = req.headers.authorization.slice(7);
   const decoded = jwt.verify(bearerToken, secret, {
     ignoreExpiration: true
   });

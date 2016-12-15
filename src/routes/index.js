@@ -1,5 +1,4 @@
 'use strict';
-var knex = require('../db').knexlocal;
 var authUtil = require('../utils/authUtil');
 var teamDbFunctions = require('../datasource/teamfunctions.js');
 var companyDbFunctions = require('../datasource/companyfunctions.js');
@@ -29,91 +28,89 @@ routes.push({
       }
     }
   },
-  handler: function(request, reply){
-     teamDbFunctions.getTeam(request.payload.name,function(err, result){
-       //callback
-       var success = false;
-       var id = 0;
-       if(result != null && result[0] != 'undefined'){
-         success = result[0].teamId > 0;
-         id = result[0].teamId;
-       }
+  handler: function(request, reply) {
+    teamDbFunctions.getTeam(request.payload.name, function(err, result) {
+      var success = false;
+      var id = 0;
+      if(result != null && result[0] != 'undefined'){
+        success = result[0].teamId > 0;
+        id = result[0].teamId;
+      }
 
-       var token = '';
-       if(success){
-          token = authUtil.createToken(id, request.payload.name, 'team');
-        }
-       reply({success: success, token: token });
-       }
-     );
+      var token = '';
+      if(success){
+        token = authUtil.createToken(id, request.payload.name, 'team');
+      }
+      reply({success: success, token: token });
+    });
   }
 });
 
 routes.push({
-    method: 'POST',
-    path: '/teams',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'admin'
-      },
-      validate: {
-        payload: {
-          name: Joi.string().required(),
-          description: Joi.string(),
-          documentId: Joi.number()
-        }
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "admin"}
-      ]
+  method: 'POST',
+  path: '/teams',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'admin'
     },
+    validate: {
+      payload: {
+        name: Joi.string().required(),
+        description: Joi.string(),
+        documentId: Joi.number()
+      }
+    },
+    pre: [
+      {method: authUtil.bindTeamData, assign: "admin"}
+    ]
+  },
 
-    handler: function(request, reply){
-        var team = {  teamName: request.payload.name,
-                      description: request.payload.description,
-                      active: 1,
-                      docId: request.payload.documentId
-                    }
+  handler: function(request, reply){
+    var team = {  teamName: request.payload.name,
+      description: request.payload.description,
+      active: 1,
+      docId: request.payload.documentId
+    }
 
-        teamDbFunctions.addTeam(team,function(err, result){
-          //callback
-          var success = false;
-          var message = '';
-          if(result != null && result[0] != null){
-            success = result[0] > 0;
-          }
-          if(!success){
-            message = "Adding team failed. Possibly due to dublicate name";
-          }
+    teamDbFunctions.addTeam(team,function(err, result){
+      //callback
+      var success = false;
+      var message = '';
+      if(result != null && result[0] != null){
+        success = result[0] > 0;
+      }
+      if(!success){
+        message = "Adding team failed. Possibly due to dublicate name";
+      }
 
-          reply({success: success, message: message });
-          }
-        );
-    } //End of handler
+      reply({success: success, message: message });
+    }
+    );
+  } //End of handler
 }); //End of POST: /teams
 
 routes.push({
-    method: 'POST',
-    path: '/teamList',
-    config: {
-      validate: {
-        payload: {
-          searchfilter: Joi.string().allow("")
-        }
-      },
-      auth: {
-        strategy: 'jwt',
-        scope: 'company'
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "company"}
-      ]
+  method: 'POST',
+  path: '/teamList',
+  config: {
+    validate: {
+      payload: {
+        searchfilter: Joi.string().allow("")
+      }
     },
-    handler: function(request, reply){
-      var companyId = request.pre.company.id;
+    auth: {
+      strategy: 'jwt',
+      scope: 'company'
+    },
+    pre: [
+      {method: authUtil.bindTeamData, assign: "company"}
+    ]
+  },
+  handler: function(request, reply){
+    var companyId = request.pre.company.id;
 
-      teamDbFunctions.getTeamList(request.payload.searchfilter, companyId, function(err, result) {
+    teamDbFunctions.getTeamList(request.payload.searchfilter, companyId, function(err, result) {
 
       result.forEach(function(item, index){
         if(item != null && item.file != null){
@@ -122,140 +119,140 @@ routes.push({
       });
 
       reply({err: err , result: result });
-      });
-    }
+    });
+  }
 });
 routes.push({
-    method: 'GET',
-    path: '/companies',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'team'
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "team"}
-      ]
+  method: 'GET',
+  path: '/companies',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'team'
     },
-    handler: function(request, reply){
+    pre: [
+      {method: authUtil.bindTeamData, assign: "team"}
+    ]
+  },
+  handler: function(request, reply){
 
     companyDbFunctions.getCompanies(request.pre.team.id, function(err, result) {
 
       reply({err: err , result: result });
     });
 
-    } //End of handler
+  } //End of handler
 });
 routes.push({
-    method: 'GET',
-    path: '/teamDetails',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'team'
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "team"}
-      ]
+  method: 'GET',
+  path: '/teamDetails',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'team'
     },
-    handler: function(request, reply){
-      teamDbFunctions.getDetails(request.pre.team.id, function(err, result) {
-          var file64 = null;
-          if(result[0].file != null){
-            file64 = result[0].file.toString('base64');
-          }
-        var returnObject = {name : result[0].teamName, file : file64, description : result[0].description}
-        reply({err: err , result: returnObject });
-      });
-    } //End of handler
+    pre: [
+      {method: authUtil.bindTeamData, assign: "team"}
+    ]
+  },
+  handler: function(request, reply){
+    teamDbFunctions.getDetails(request.pre.team.id, function(err, result) {
+      var file64 = null;
+      if(result[0].file != null){
+        file64 = result[0].file.toString('base64');
+      }
+      var returnObject = {name : result[0].teamName, file : file64, description : result[0].description}
+      reply({err: err , result: returnObject });
+    });
+  } //End of handler
 });
 //#EndRegion teamRoutes
 
 //#Region Company
 
 routes.push({
-    method: 'POST',
-    path: '/company/authenticate',
-    config: {
-      validate: {
-        payload: {
-          name: Joi.string().required()
-        }
+  method: 'POST',
+  path: '/company/authenticate',
+  config: {
+    validate: {
+      payload: {
+        name: Joi.string().required()
       }
-    },
-    handler: function (request, reply) {
+    }
+  },
+  handler: function (request, reply) {
+    var success = false;
+    var token = '';
+
+    companyDbFunctions.getCompany(request.payload.name,function(err, result){
+      //callback
       var success = false;
-      var token = '';
+      var id = 0;
+      if(result != null && result[0] != 'undefined'){
+        success = result[0].companyId > 0;
+        id = result[0].companyId;
+      }
 
-      companyDbFunctions.getCompany(request.payload.name,function(err, result){
-        //callback
-        var success = false;
-        var id = 0;
-        if(result != null && result[0] != 'undefined'){
-          success = result[0].companyId > 0;
-          id = result[0].companyId;
-        }
-
-       if(success){
-          token = authUtil.createToken(id, request.payload.name, 'company');
-        }
-       reply({success: success, token: token });
-       }
-     );
+      if(success){
+        token = authUtil.createToken(id, request.payload.name, 'company');
+      }
+      reply({success: success, token: token });
+    }
+    );
   }
 });
 
- //End of POST: /company
+//End of POST: /company
 
 
 //#EndRegion Company
 
 // #Region CompanyPoint
 routes.push({
-    method: 'POST',
-    path: '/companypoint',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'company'
-      },
-      validate: {
-        payload: {
-          teamId: Joi.number().required(),
-          point: Joi.number().required()
-        }
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "company"}
-      ]
+  method: 'POST',
+  path: '/companypoint',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'company'
     },
+    validate: {
+      payload: {
+        teamId: Joi.number().required(),
+        point: Joi.number().required()
+      }
+    },
+    pre: [
+      {method: authUtil.bindTeamData, assign: "company"}
+    ]
+  },
 
-    handler: function(request, reply){
-        var companypoint = {
-                      teamId: request.payload.teamId,
-                      companyId: request.pre.company.id,
-                      point: request.payload.point
-                    }
+  handler: function(request, reply){
+    var companypoint = {
+      teamId: request.payload.teamId,
+      companyId: request.pre.company.id,
+      point: request.payload.point
+    }
 
 
-        companypointDbFunctions.addCompanyPoint(companypoint,function(err, result){
+    companypointDbFunctions.addCompanyPoint(companypoint,function(err, result){
 
-          //callback
-          var success = false;
-          var message = '';
-          if(result != null){
-              success = result > 0;
-          }
+      //callback
+      var success = false;
+      var message = '';
+      if(result != null){
+        success = result > 0;
+      }
 
-          if(!success){
-            message = "Adding points failed";
-          }
+      if(!success){
+        message = "Adding points failed";
+      }
 
-          reply({success: success, message: message });
-          }
+      reply({success: success, message: message });
+    }
 
-        );
-    } //End of handler
+    );
+  } //End of handler
 }); //End of POST: /companypoint
 
 
@@ -278,105 +275,105 @@ routes.push({
   },
   handler: function(request, reply) {
 
-      var clearPoints = {
-                    companyId: request.pre.company.id,
-                    teamId: request.payload.teamId
-                  }
-
-      companypointDbFunctions.clearCompanyPoint(clearPoints,function(err, result) {
-
-        //callback
-        var success = false;
-        var message = '';
-        if(result != null){
-            success = result > 0;
-        }
-
-        if(!success){
-          message = "Clearing points failed";
-        }
-
-        reply({success: success, message: message });
-        }
-      );
+    var clearPoints = {
+      companyId: request.pre.company.id,
+      teamId: request.payload.teamId
     }
+
+    companypointDbFunctions.clearCompanyPoint(clearPoints,function(err, result) {
+
+      //callback
+      var success = false;
+      var message = '';
+      if(result != null){
+        success = result > 0;
+      }
+
+      if(!success){
+        message = "Clearing points failed";
+      }
+
+      reply({success: success, message: message });
+    }
+    );
+  }
 });
 
 //#CompanyPoint GET
 
 routes.push({
-    method: 'GET',
-    path: '/companypoints',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'team'
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "team"}
-      ]
+  method: 'GET',
+  path: '/companypoints',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'team'
     },
-    handler: function(request, reply){
+    pre: [
+      {method: authUtil.bindTeamData, assign: "team"}
+    ]
+  },
+  handler: function(request, reply){
 
     companypointDbFunctions.getCompanyPoints(request.pre.team.id,function(err, result) {
 
       reply({err: err , result: result });
     });
 
-    } //End of handler
+  } //End of handler
 }); //End of POST: /company
 
 // #EndRegion CompanyPoint
 
 //#Region feedback
 routes.push({
-    method: 'POST',
-    path: '/feedback',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'team'
-      },
-      validate: {
-        payload: {
-          schoolGrade: Joi.number(),
-          answer1: Joi.string().allow(""),
-          answer2: Joi.string().allow(""),
-          answer3: Joi.string().allow(""),
-          answer4: Joi.string().allow(""),
-          answer5: Joi.string().allow("")
-        }
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "team"}
-      ]
+  method: 'POST',
+  path: '/feedback',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'team'
     },
+    validate: {
+      payload: {
+        schoolGrade: Joi.number(),
+        answer1: Joi.string().allow(""),
+        answer2: Joi.string().allow(""),
+        answer3: Joi.string().allow(""),
+        answer4: Joi.string().allow(""),
+        answer5: Joi.string().allow("")
+      }
+    },
+    pre: [
+      {method: authUtil.bindTeamData, assign: "team"}
+    ]
+  },
   handler: function(request, reply) {
-        var feedback = {  schoolGrade: request.payload.schoolGrade,
-                      answer1: request.payload.answer1,
-                      answer2: request.payload.answer2,
-                      answer3: request.payload.answer3,
-                      answer4: request.payload.answer4,
-                      answer5: request.payload.answer5
-                    }
-        feedbackDbFunctions.saveFeedback(feedback,function(err, result){
+    var feedback = {  schoolGrade: request.payload.schoolGrade,
+      answer1: request.payload.answer1,
+      answer2: request.payload.answer2,
+      answer3: request.payload.answer3,
+      answer4: request.payload.answer4,
+      answer5: request.payload.answer5
+    }
+    feedbackDbFunctions.saveFeedback(feedback,function(err, result){
 
-          //callback
-          var success = false;
-          var message = '';
+      //callback
+      var success = false;
+      var message = '';
 
-          if(result != null && result[0] != null){
-            success = result[0] > 0;
-          }
+      if(result != null && result[0] != null){
+        success = result[0] > 0;
+      }
 
-          if(!success){
-            message = "Adding feedback failed";
-          }
+      if(!success){
+        message = "Adding feedback failed";
+      }
 
-          reply({success: success, message: message });
-        }
-      );
-    }//End of handler
+      reply({success: success, message: message });
+    }
+    );
+  }//End of handler
 });//End of POST: /feedback
 //#EndRegion feedback
 
@@ -393,16 +390,16 @@ routes.push({
     }
   },
   handler: function(request, reply){
-      adminDbFunctions.findAdmin(request.payload.admin, request.payload.password ,function(success){
+    adminDbFunctions.findAdmin(request.payload.admin, request.payload.password ,function(success){
 
-        var token = '';
+      var token = '';
 
-        if(success){
-           token = authUtil.createToken(1, request.payload.admin, 'admin');
-         }
+      if(success){
+        token = authUtil.createToken(1, request.payload.admin, 'admin');
+      }
 
-         reply({success: success, token:token });
-      })
+      reply({success: success, token:token });
+    })
   }
 });
 
@@ -411,62 +408,62 @@ routes.push({
 //#Region DocumentRoutes
 
 routes.push({
-    method: 'POST',
-    path: '/savePicture',
-    config: {
-      auth: {
-        strategy: 'jwt',
-        scope: 'team'
-      },
-      validate: {
-        payload: {
-          data: Joi.string().required(),
-        }
-      },
-      pre: [
-        {method: authUtil.bindTeamData, assign: "team"}
-      ]
+  method: 'POST',
+  path: '/savePicture',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      scope: 'team'
     },
+    validate: {
+      payload: {
+        data: Joi.string().required(),
+      }
+    },
+    pre: [
+      {method: authUtil.bindTeamData, assign: "team"}
+    ]
+  },
 
-    handler: function(request, reply){
-        const buf = Buffer.from(request.payload.data, 'base64');
+  handler: function(request, reply){
+    const buf = Buffer.from(request.payload.data, 'base64');
 
-        var success = false;
-        var message = '';
-        var docId = 0;
+    var success = false;
+    var message = '';
+    var docId = 0;
 
-        var document = {
-                          file: buf,
-                          doctype: 1
-                        }
+    var document = {
+      file: buf,
+      doctype: 1
+    }
 
-        documentDbFunctions.saveDocument(document,function(err, result){
-          //callback
+    documentDbFunctions.saveDocument(document,function(err, result){
+      //callback
+      if(result != null && result[0] != null){
+        success = result[0] > 0;
+        docId = result[0]
+      }
+
+      if(!success){
+        message = "Adding document failed.";
+      }
+
+      if(success){
+        //Attach document to relation
+        teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id, function(err,result){
           if(result != null && result[0] != null){
             success = result[0] > 0;
-            docId = result[0]
           }
 
           if(!success){
-            message = "Adding document failed.";
+            message = "Adding document relation to team failed.";
           }
-
-          if(success){
-            //Attach document to relation
-            teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id, function(err,result){
-              if(result != null && result[0] != null){
-                success = result[0] > 0;
-              }
-
-              if(!success){
-                message = "Adding document relation to team failed.";
-              }
-            });
-          }
-          console.log('savePicture ended success = ' + success)
-          reply({success: success, message: message });
         });
-    } //End of handler
+      }
+      console.log('savePicture ended success = ' + success)
+      reply({success: success, message: message });
+    });
+  } //End of handler
 });
 
 routes.push({
@@ -491,12 +488,12 @@ routes.push({
 
     teamDbFunctions.updateTeamDescription(request.pre.team.id, request.payload.teamDescription, function(err, result){
       var success = result>0;
-         reply({err: err, success: success});
+      reply({err: err, success: success});
     });
   }
 });
 
- //End of POST: /teams
+//End of POST: /teams
 
 //#EndRegion DocumentRoutes
 module.exports = routes;

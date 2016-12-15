@@ -8,14 +8,32 @@ var documentDbFunctions = require('../datasource/documentfunctions.js');
 var feedbackDbFunctions = require('../datasource/feedbackfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
+const sharp = require('sharp');
 
 var routes = [];
 
-//#Region hello world
+const teamConfig = {
+  auth: { strategy: 'jwt', scope: 'team' },
+  pre: [ { method: authUtil.bindTeamData, assign: 'team' } ]
+};
+const companyConfig = {
+  auth: { strategy: 'jwt', scope: 'company' },
+  pre: [ { method: authUtil.bindTeamData, assign: 'company' } ]
+};
+const adminConfig = {
+  auth: { strategy: 'jwt', scope: 'admin' },
+  pre: [ { method: authUtil.bindTeamData, assign: 'admin' } ]
+};
 
-
-
-//# End of helloworld routes
+// helper function which takes a promise returning handler function, arguments
+// to call it with, and passes the result to reply
+const replyWithResult = (handler, args, reply) => {
+  handler.apply(this, args)
+    .then(reply)
+    .catch((err) => {
+      reply(Boom.badImplementation(err));
+    });
+};
 
 //#Region teamRoutes
 routes.push({
@@ -125,53 +143,32 @@ routes.push({
     });
   }
 });
+
 routes.push({
   method: 'GET',
   path: '/companies',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'team'
-    },
-    pre: [
-      {method: authUtil.bindTeamData, assign: "team"}
-    ]
-  },
-  handler: function(request, reply){
-
-    companyDbFunctions.getCompanies(request.pre.team.id, function(err, result) {
-
-      reply({err: err , result: result });
-    });
-
-  } //End of handler
+  config: teamConfig,
+  handler: function(request, reply) {
+    replyWithResult(
+      companyDbFunctions.getCompanies,
+      [request.pre.team.id],
+      reply
+    );
+  }
 });
+
 routes.push({
   method: 'GET',
   path: '/teamDetails',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'team'
-    },
-    pre: [
-      {method: authUtil.bindTeamData, assign: "team"}
-    ]
-  },
-  handler: function(request, reply){
-    teamDbFunctions.getDetails(request.pre.team.id, function(err, result) {
-      var file64 = null;
-      if(result[0].file != null){
-        file64 = result[0].file.toString('base64');
-      }
-      var returnObject = {name : result[0].teamName, file : file64, description : result[0].description}
-      reply({err: err , result: returnObject });
-    });
-  } //End of handler
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      teamDbFunctions.getDetails,
+      [request.pre.team.id],
+      reply
+    );
+  }
 });
-//#EndRegion teamRoutes
-
-//#Region Company
 
 routes.push({
   method: 'POST',
@@ -302,41 +299,24 @@ routes.push({
   }
 });
 
-//#CompanyPoint GET
-
 routes.push({
   method: 'GET',
   path: '/companypoints',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'team'
-    },
-    pre: [
-      {method: authUtil.bindTeamData, assign: "team"}
-    ]
-  },
-  handler: function(request, reply){
-
-    companypointDbFunctions.getCompanyPoints(request.pre.team.id,function(err, result) {
-
-      reply({err: err , result: result });
-    });
-
-  } //End of handler
-}); //End of POST: /company
-
-// #EndRegion CompanyPoint
+  config: teamConfig,
+  handler: function(request, reply) {
+    replyWithResult(
+      companypointDbFunctions.getCompanyPoints,
+      [request.pre.team.id],
+      reply
+    );
+  }
+});
 
 //#Region feedback
 routes.push({
   method: 'POST',
   path: '/feedback',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'team'
-    },
+  config: Object.assign({}, teamConfig, {
     validate: {
       payload: {
         schoolGrade: Joi.number(),
@@ -346,11 +326,8 @@ routes.push({
         answer4: Joi.string().allow(""),
         answer5: Joi.string().allow("")
       }
-    },
-    pre: [
-      {method: authUtil.bindTeamData, assign: "team"}
-    ]
-  },
+    }
+  }),
   handler: function(request, reply) {
     var feedback = {  schoolGrade: request.payload.schoolGrade,
       answer1: request.payload.answer1,
@@ -413,82 +390,64 @@ routes.push({
 routes.push({
   method: 'POST',
   path: '/savePicture',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'team'
-    },
-    validate: {
-      payload: {
-        data: Joi.string().required(),
-      }
-    },
-    pre: [
-      {method: authUtil.bindTeamData, assign: "team"}
-    ]
-  },
-
-  handler: function(request, reply){
-    const buf = Buffer.from(request.payload.data, 'base64');
-
-    var success = false;
-    var message = '';
-    var docId = 0;
-
-    var document = {
-      file: buf,
-      doctype: 1
+  config: Object.assign({}, teamConfig, {
+    payload: {
+      parse: true,
+      maxBytes: 1024 * 1024 * 20 // 20 MB ought to be enough for anybody
     }
+  }),
+  handler: function(request, reply){
+    const buf = Buffer.from(request.payload, 'base64');
+    //console.log(buf.toString());
 
-    documentDbFunctions.saveDocument(document,function(err, result){
-      //callback
-      if(result != null && result[0] != null){
-        success = result[0] > 0;
-        docId = result[0]
+    // resize image to thumbnail size
+    sharp(buf)
+    .resize(512, 512)
+    .png()
+    .toBuffer()
+    .then((file) => {
+      return documentDbFunctions.saveDocument({
+        file,
+        doctype: 1
+      })
+    })
+
+    .then((result) => {
+      if(!result) {
+        throw 'Unknown error while adding document. result was: ' + result;
       }
 
-      if(!success){
-        message = "Adding document failed.";
+      const docId = result[0];
+
+      // Attach document to team relation
+      return teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id);
+    })
+
+    .then((result) => {
+      if (!result) {
+        throw 'Unknown error while attaching document to team. result was: ' + result;
       }
 
-      if(success){
-        //Attach document to relation
-        teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id, function(err,result){
-          if(result != null && result[0] != null){
-            success = result[0] > 0;
-          }
+      reply(result);
+    })
 
-          if(!success){
-            message = "Adding document relation to team failed.";
-          }
-        });
-      }
-      console.log('savePicture ended success = ' + success)
-      reply({success: success, message: message });
+    .catch((err) => {
+      reply(Boom.badImplementation(err));
     });
-  } //End of handler
+  }
 });
 
 routes.push({
   method: 'POST',
   path: '/saveDescription',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'team'
-    },
+  config: Object.assign({}, teamConfig, {
     validate: {
       payload: {
         teamDescription: Joi.string().allow(""),
       }
-    },
-    pre: [
-      {method: authUtil.bindTeamData, assign: "team"}
-    ]
-  },
-
+    }
+  }),
   handler: function(request, reply){
-
     teamDbFunctions.updateTeamDescription(request.pre.team.id, request.payload.teamDescription, function(err, result){
       var success = result>0;
       reply({err: err, success: success});

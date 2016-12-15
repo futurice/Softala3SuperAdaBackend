@@ -17,18 +17,14 @@ exports.getDetails = function(teamId, callback){
     LEFT JOIN "Document" on "Document"."docId" = "Team"."docId"
     WHERE "Team"."teamId" = 27;
     */
-  knex.select('Team.teamName', 'Team.description', 'Document.file')
-    .from("Team")
-    .leftJoin('Document', 'Document.docId', 'Team.docId')
+  return knex('Team')
+    .first()
     .where({"teamId": teamId })
-    .then(function(results) {
-      callback(null, results);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
+    .leftJoin('Document', 'Document.docId', 'Team.docId')
+    .select('teamId', 'teamName', 'description', 'file')
+    .then((result) => {
+      result.file = result.file ? result.file.toString('base64') : null;
+      return result;
     });
 };
 
@@ -93,22 +89,10 @@ exports.getTeamList = function(searchfilter, companyId, callback){
     });
 };
 
-exports.attachDocumentToTeam = function(docId, teamId, callback){
-
-  knex("Team")
-    .where('teamId', '=', teamId)
-    .update({
-      docId: docId
-    })
-    .then(function(results) {
-      callback(null, results);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
-    });
+exports.attachDocumentToTeam = (docId, teamId) => {
+  return knex('Team')
+    .where('teamId', teamId)
+    .update('docId', docId);
 };
 
 exports.updateTeamDescription = function(teamId, description, callback){

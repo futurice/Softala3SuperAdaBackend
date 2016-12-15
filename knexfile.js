@@ -11,7 +11,7 @@ const ALL_ENVIRONMENTS = Object.freeze({
     host : '127.0.0.1',
     user : 'postgres', /* whoami */
     password : '',
-    database : 'postgres'
+    database : 'superada'
    },
   // Use a single connection to execute migrations.
   pool: {

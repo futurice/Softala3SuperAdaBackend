@@ -48,7 +48,14 @@ nodemon
 
 init db
 ```
-TODO npm run db:migrate
+$ psql --user postgres
+  CREATE DATABASE superada;
+  <C-d>
+
+  npm run db:migrate
+
+  # If you want to fill the DB with seed data (you probably want this):
+  npm run db:seed
 ```
 
 try with browser

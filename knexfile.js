@@ -7,9 +7,9 @@
 // custom config for any environment, if you prefer.
 const ALL_ENVIRONMENTS = Object.freeze({
   client: 'postgresql',
-  connection: {
+  connection: process.env.DATABASE_URL || {
     host : '127.0.0.1',
-    user : 'petrikortelainen', /* whoami */
+    user : 'postgres', /* whoami */
     password : '',
     database : 'postgres'
    },

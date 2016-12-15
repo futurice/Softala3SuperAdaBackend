@@ -5,7 +5,7 @@ const routes = require('./routes');
 const server = new Hapi.Server();
 var knex = require('./db').knexlocal;
 const config = require('./config');
-server.connection({ port: 3000 });
+server.connection({ port: process.env.PORT || 3000 });
 
 
 

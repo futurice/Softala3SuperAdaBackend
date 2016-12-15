@@ -89,17 +89,19 @@ exports.bindAdminData = function(req, res) {
   }*/
 }
 
+const bearerRegex = /Bearer\s+(.*)/i;
+
 // Get data from jwt
 exports.bindTeamData = function(req, res){
-  const bearerToken = req.headers.authorization.slice(7);
+  let bearerToken = req.headers.authorization;
+
+  // strip "Bearer" word from header if present
+  if (bearerToken.match(bearerRegex)) {
+    bearerToken = bearerToken.match(bearerRegex)[1];
+  }
   const decoded = jwt.verify(bearerToken, secret, {
     ignoreExpiration: true
   });
 
-  var id = decoded.id;
-  var name = decoded.name;
-  var scope = decoded.scope;
-
   res(decoded);
-
 }

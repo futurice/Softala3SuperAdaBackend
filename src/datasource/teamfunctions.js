@@ -3,17 +3,11 @@
 var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
-exports.getTeam = function(name, callback){
-  knex.select("teamId").from("Team").where({"teamName": name })
-    .then(function(results) {
-      callback(null, results);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
-    });
+exports.getTeam = (name) => {
+  return knex("Team")
+    .first()
+    .where('teamName', name)
+    .returning('*')
 };
 
 exports.getDetails = function(teamId, callback){

@@ -7,7 +7,7 @@ var adminDbFunctions = require('../datasource/adminfunctions.js');
 var documentDbFunctions = require('../datasource/documentfunctions.js');
 var feedbackDbFunctions = require('../datasource/feedbackfunctions.js');
 const Joi = require('joi');
-
+const Boom = require('boom');
 
 var routes = [];
 
@@ -28,21 +28,24 @@ routes.push({
       }
     }
   },
-  handler: function(request, reply) {
-    teamDbFunctions.getTeam(request.payload.name, function(err, result) {
-      var success = false;
-      var id = 0;
-      if(result != null && result[0] != 'undefined'){
-        success = result[0].teamId > 0;
-        id = result[0].teamId;
-      }
+  handler: (request, reply) => {
+    teamDbFunctions.getTeam(request.payload.name)
+      .then((team) => {
+        if (!team) {
+          return reply(Boom.unauthorized('Team not found.'));
+        }
 
-      var token = '';
-      if(success){
-        token = authUtil.createToken(id, request.payload.name, 'team');
-      }
-      reply({success: success, token: token });
-    });
+        const token = authUtil.createToken(
+          team.teamId,
+          request.payload.name,
+          'team'
+        );
+
+        reply({ token: token });
+      })
+      .catch((err) => {
+        reply(Boom.badImplementation(err));
+      });
   }
 });
 

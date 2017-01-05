@@ -14,12 +14,10 @@ var logErrors = require('../db').logErrors;
  * @returns {Promise} - A Promise which resolves to the inserted/updated row
  */
 const upsertItem = function(tableName, conflictTarget, itemData) {
-  console.log(itemData);
   let exclusions = Object.keys(itemData)
     .filter(c => c !== conflictTarget)
     .map(c => knex.raw('?? = EXCLUDED.??', [c, c]).toString())
     .join(",\n");
-  console.log(exclusions);
 
   let insertString = knex(tableName).insert(itemData).toString();
   let conflictString = knex.raw(` ON CONFLICT (??) DO UPDATE SET ${exclusions} RETURNING *;`, conflictTarget).toString();

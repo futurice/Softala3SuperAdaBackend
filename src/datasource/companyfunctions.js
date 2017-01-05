@@ -18,7 +18,6 @@ exports.getCompany = function(name, callback){
 
 
 exports.getCompanies = function(teamId) {
-  console.log(teamId);
   return knex.select('Company.companyId','Company.companyName', 'Company.docId')
     .select(knex.raw('CASE WHEN "CompanyPoint"."teamId" IS NOT NULL then TRUE ELSE FALSE END AS visited'))
     .from("Company")

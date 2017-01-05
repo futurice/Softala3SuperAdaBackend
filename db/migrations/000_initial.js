@@ -6,14 +6,10 @@ exports.up = function(knex) {
 
     .createTable('Question', function(table) {
       table.increments('questionId').primary();
-      table.text('questionText');
-    })
-
-    .createTable('Feedback', function(table) {
-      table.increments('feedbackId').primary();
-      table.text('answerText').notNullable();
-      table.integer('answerSelected').notNullable();
-      table.integer('questionId').references('questionId').inTable('Question');
+      table.text('questionText').notNullable();
+      table.text('questionType').notNullable();
+      table.integer('numButtons');
+      table.json('labels');
     })
 
     .createTable('Document', function(table){
@@ -28,6 +24,11 @@ exports.up = function(knex) {
       table.text('description').notNullable();
       table.boolean('active').defaultTo(true).notNullable();
       table.integer('docId').references('docId').inTable('Document');
+    })
+
+    .createTable('Feedback', function(table) {
+      table.integer('teamId').references('teamId').inTable('Team').primary();
+      table.json('answers').notNullable();
     })
 
     .createTable('Company', function(table) {

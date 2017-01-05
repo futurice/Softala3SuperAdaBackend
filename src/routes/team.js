@@ -1,24 +1,23 @@
 'use strict';
 
-var authUtil = require('../utils/authUtil');
-var teamDbFunctions = require('../datasource/teamfunctions.js');
-var companyDbFunctions = require('../datasource/companyfunctions.js');
-var companypointDbFunctions = require('../datasource/companypointfunctions.js');
-var adminDbFunctions = require('../datasource/adminfunctions.js');
-var documentDbFunctions = require('../datasource/documentfunctions.js');
-var feedbackDbFunctions = require('../datasource/feedbackfunctions.js');
+const authUtil = require('../utils/authUtil');
+const teamDbFunctions = require('../datasource/teamfunctions.js');
+const companyDbFunctions = require('../datasource/companyfunctions.js');
+const companypointDbFunctions = require('../datasource/companypointfunctions.js');
+const documentDbFunctions = require('../datasource/documentfunctions.js');
+const feedbackDbFunctions = require('../datasource/feedbackfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
 const sharp = require('sharp');
 const _ = require('lodash');
 const replyWithResult = require('../utils/restUtil').replyWithResult;
 
-var routes = [];
-
 const teamConfig = {
   auth: { strategy: 'jwt', scope: 'team' },
   pre: [ { method: authUtil.bindTeamData, assign: 'team' } ]
 };
+
+var routes = [];
 
 routes.push({
   method: 'POST',
@@ -75,6 +74,45 @@ routes.push({
     replyWithResult(
       teamDbFunctions.getDetails,
       [request.pre.team.id],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'GET',
+  path: '/companypoints',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      companypointDbFunctions.getCompanyPoints,
+      [request.pre.team.id],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'GET',
+  path: '/feedback',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      feedbackDbFunctions.getFeedback,
+      [request.pre.team.id],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'POST',
+  path: '/feedback',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      feedbackDbFunctions.saveFeedback,
+      [request.pre.team.id, request.payload],
       reply
     );
   }
@@ -141,62 +179,6 @@ routes.push({
     })
     .catch((err) => {
       reply(Boom.badImplementation(err));
-    });
-  }
-});
-
-routes.push({
-  method: 'GET',
-  path: '/companypoints',
-  config: teamConfig,
-  handler: (request, reply) => {
-    replyWithResult(
-      companypointDbFunctions.getCompanyPoints,
-      [request.pre.team.id],
-      reply
-    );
-  }
-});
-
-routes.push({
-  method: 'POST',
-  path: '/feedback',
-  config: Object.assign({}, teamConfig, {
-    validate: {
-      payload: {
-        schoolGrade: Joi.number(),
-        answer1: Joi.string().allow(''),
-        answer2: Joi.string().allow(''),
-        answer3: Joi.string().allow(''),
-        answer4: Joi.string().allow(''),
-        answer5: Joi.string().allow('')
-      }
-    }
-  }),
-  handler: function(request, reply) {
-    // TODO: promisify
-    var feedback = {
-      schoolGrade: request.payload.schoolGrade,
-      answer1: request.payload.answer1,
-      answer2: request.payload.answer2,
-      answer3: request.payload.answer3,
-      answer4: request.payload.answer4,
-      answer5: request.payload.answer5
-    }
-
-    feedbackDbFunctions.saveFeedback(feedback, function(err, result) {
-      var success = false;
-      var message = '';
-
-      if(result != null && result[0] != null) {
-        success = result[0] > 0;
-      }
-
-      if(!success) {
-        message = 'Adding feedback failed';
-      }
-
-      reply({ success: success, message: message });
     });
   }
 });

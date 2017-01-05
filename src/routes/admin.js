@@ -1,12 +1,8 @@
 'use strict';
 
-var authUtil = require('../utils/authUtil');
-var teamDbFunctions = require('../datasource/teamfunctions.js');
-var companyDbFunctions = require('../datasource/companyfunctions.js');
-var companypointDbFunctions = require('../datasource/companypointfunctions.js');
-var adminDbFunctions = require('../datasource/adminfunctions.js');
-var documentDbFunctions = require('../datasource/documentfunctions.js');
-var feedbackDbFunctions = require('../datasource/feedbackfunctions.js');
+const authUtil = require('../utils/authUtil');
+const teamDbFunctions = require('../datasource/teamfunctions.js');
+const adminDbFunctions = require('../datasource/adminfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
 const sharp = require('sharp');

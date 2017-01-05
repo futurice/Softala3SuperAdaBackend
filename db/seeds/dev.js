@@ -101,21 +101,51 @@ exports.seed = (knex) => (
 
   .then(() => (
     knex('Question').insert({
-      questionText: "Mistä sait tiedon tapahtumasta?"
+      questionText: 'Anna kouluarvosana tapahtumalle (1-5)',
+      questionType: 'radio',
+      numButtons: 5,
+      labels: JSON.stringify([1, 2, 3, 4, 5])
     })
   ))
 
   .then(() => (
-    knex('Feedback').insert({
-      answerText: "Haaga-Heliasta kaverilta",
-      answerSelected: 1
+    knex('Question').insert({
+      questionText: 'Mistä sait tiedon tapahtumasta?',
+      questionType: 'text'
     })
   ))
 
   .then(() => (
-    knex('Feedback').insert({
-      answerText: "Netistä",
-      answerSelected: 0
+    knex('Question').insert({
+      questionText: 'Innostuitko IT-alasta?',
+      questionType: 'radio',
+      numButtons: 2,
+      labels: JSON.stringify(['Kyllä', 'Ei'])
+    })
+  ))
+
+  .then(() => (
+    knex('Question').insert({
+      questionText: 'Muuttuiko käsityksesi IT-alasta?',
+      questionType: 'radio',
+      numButtons: 2,
+      labels: JSON.stringify(['Kyllä', 'Ei'])
+    })
+  ))
+
+  .then(() => (
+    knex('Question').insert({
+      questionText: 'Voisitko kuvitella meneväsi IT-alalle töihin?',
+      questionType: 'radio',
+      numButtons: 2,
+      labels: JSON.stringify(['Kyllä', 'Ei'])
+    })
+  ))
+
+  .then(() => (
+    knex('Question').insert({
+      questionText: 'Kehitysehdotuksia seuraavan Super-Ada -tapahtuman järjestäjille?',
+      questionType: 'text'
     })
   ))
 

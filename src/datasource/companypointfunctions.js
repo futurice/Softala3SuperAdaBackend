@@ -75,5 +75,9 @@ exports.clearCompanyPoint = function(clearPoints, callback) {
 exports.getCompanyPoints = function(teamId) {
   return knex.sum('point')
     .from('CompanyPoint')
-    .where('teamId', teamId);
+    .where('teamId', teamId)
+    .then((result) => {
+      // result array should always contain one element, return first element
+      return result[0];
+    });
 };

@@ -23,7 +23,7 @@ exports.getDetails = function(teamId, callback){
     .leftJoin('Document', 'Document.docId', 'Team.docId')
     .select('teamId', 'teamName', 'description', 'file')
     .then((result) => {
-      result.file = result.file ? result.file.toString('base64') : null;
+      result.file = result.file ? 'data:image/png;base64,' + result.file.toString('base64') : null;
       return result;
     });
 };
@@ -95,19 +95,14 @@ exports.attachDocumentToTeam = (docId, teamId) => {
     .update('docId', docId);
 };
 
-exports.updateTeamDescription = function(teamId, description, callback){
-  knex("Team")
+exports.updateTeamDescription = (teamId, description) => {
+  return knex("Team")
     .where('teamId', '=', teamId)
     .update({
       description: description
     })
-    .then(function(results) {
-      callback(null, results);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
+    .returning('*')
+    .then((results) => {
+      return results[0];
     });
 };

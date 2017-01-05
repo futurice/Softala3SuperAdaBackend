@@ -1,6 +1,7 @@
 
 //const bcrypt = require('bcrypt');
 var knex = require('../db').knexlocal;
+// TODO !!!!!
 var secret = 'really_secret_key';//gen 2040 bit of random stuff
 var jwt = require('jsonwebtoken');
 

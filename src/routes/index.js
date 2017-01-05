@@ -36,7 +36,6 @@ const replyWithResult = (handler, args, reply) => {
     });
 };
 
-//#Region teamRoutes
 routes.push({
   method: 'POST',
   path: '/teams/authenticate',
@@ -52,22 +51,22 @@ routes.push({
   },
   handler: (request, reply) => {
     teamDbFunctions.getTeam(request.payload.name)
-      .then((team) => {
-        if (!team) {
-          return reply(Boom.unauthorized('Team not found.'));
-        }
+    .then((team) => {
+      if (!team) {
+        return reply(Boom.unauthorized('Team not found.'));
+      }
 
-        const token = authUtil.createToken(
-          team.teamId,
-          request.payload.name,
-          'team'
-        );
+      const token = authUtil.createToken(
+        team.teamId,
+        request.payload.name,
+        'team'
+      );
 
-        reply( token );
-      })
-      .catch((err) => {
-        reply(Boom.badImplementation(err));
-      });
+      reply( token );
+    })
+    .catch((err) => {
+      reply(Boom.badImplementation(err));
+    });
   }
 });
 
@@ -87,33 +86,36 @@ routes.push({
       }
     },
     pre: [
-      {method: authUtil.bindTeamData, assign: "admin"}
+      { method: authUtil.bindTeamData, assign: 'admin' }
     ]
   },
 
-  handler: function(request, reply){
-    var team = {  teamName: request.payload.name,
+  handler: function(request, reply) {
+    // TODO: promisify
+    var team = {
+      teamName: request.payload.name,
       description: request.payload.description,
       active: 1,
       docId: request.payload.documentId
     }
 
-    teamDbFunctions.addTeam(team,function(err, result){
-      //callback
+    teamDbFunctions.addTeam(team, function(err, result) {
       var success = false;
       var message = '';
-      if(result != null && result[0] != null){
+
+      if(result != null && result[0] != null) {
         success = result[0] > 0;
       }
-      if(!success){
-        message = "Adding team failed. Possibly due to dublicate name";
+
+      if(!success) {
+        message = 'Adding team failed. Possibly due to dublicate name';
       }
 
-      reply({success: success, message: message });
+      reply({ success: success, message: message });
     }
     );
-  } //End of handler
-}); //End of POST: /teams
+  }
+});
 
 routes.push({
   method: 'POST',
@@ -121,7 +123,7 @@ routes.push({
   config: {
     validate: {
       payload: {
-        searchfilter: Joi.string().allow("")
+        searchfilter: Joi.string().allow('')
       }
     },
     auth: {
@@ -129,21 +131,22 @@ routes.push({
       scope: 'company'
     },
     pre: [
-      {method: authUtil.bindTeamData, assign: "company"}
+      { method: authUtil.bindTeamData, assign: 'company' }
     ]
   },
   handler: function(request, reply){
+    // TODO: promisify
     var companyId = request.pre.company.id;
 
     teamDbFunctions.getTeamList(request.payload.searchfilter, companyId, function(err, result) {
 
-      result.forEach(function(item, index){
-        if(item != null && item.file != null){
+      result.forEach(function(item, index) {
+        if(item != null && item.file != null) {
           item.file = item.file.toString('base64')
         }
       });
 
-      reply({err: err , result: result });
+      reply({ err: err , result: result });
     });
   }
 });
@@ -249,34 +252,28 @@ routes.push({
       }
     }
   },
-  handler: function (request, reply) {
+  handler: function(request, reply) {
+    // TODO: promisify
     var success = false;
     var token = '';
 
-    companyDbFunctions.getCompany(request.payload.name,function(err, result){
-      //callback
+    companyDbFunctions.getCompany(request.payload.name, function(err, result) {
       var success = false;
       var id = 0;
-      if(result != null && result[0] != 'undefined'){
+      if(result != null && result[0] != 'undefined') {
         success = result[0].companyId > 0;
         id = result[0].companyId;
       }
 
-      if(success){
+      if(success) {
         token = authUtil.createToken(id, request.payload.name, 'company');
       }
-      reply({success: success, token: token });
+      reply({ success: success, token: token });
     }
     );
   }
 });
 
-//End of POST: /company
-
-
-//#EndRegion Company
-
-// #Region CompanyPoint
 routes.push({
   method: 'POST',
   path: '/companypoint',
@@ -292,38 +289,34 @@ routes.push({
       }
     },
     pre: [
-      {method: authUtil.bindTeamData, assign: "company"}
+      { method: authUtil.bindTeamData, assign: 'company' }
     ]
   },
 
-  handler: function(request, reply){
+  handler: function(request, reply) {
+    // TODO: promisify
     var companypoint = {
       teamId: request.payload.teamId,
       companyId: request.pre.company.id,
       point: request.payload.point
     }
 
-
-    companypointDbFunctions.addCompanyPoint(companypoint,function(err, result){
-
-      //callback
+    companypointDbFunctions.addCompanyPoint(companypoint, function(err, result) {
       var success = false;
       var message = '';
-      if(result != null){
+
+      if(result != null) {
         success = result > 0;
       }
 
-      if(!success){
-        message = "Adding points failed";
+      if(!success) {
+        message = 'Adding points failed';
       }
 
-      reply({success: success, message: message });
-    }
-
-    );
-  } //End of handler
-}); //End of POST: /companypoint
-
+      reply({ success: success, message: message });
+    });
+  }
+});
 
 routes.push({
   method: 'POST',
@@ -339,30 +332,28 @@ routes.push({
       }
     },
     pre: [
-      {method: authUtil.bindTeamData, assign: "company"}
+      { method: authUtil.bindTeamData, assign: 'company' }
     ]
   },
   handler: function(request, reply) {
-
+    // TODO: promisify
     var clearPoints = {
       companyId: request.pre.company.id,
       teamId: request.payload.teamId
     }
 
-    companypointDbFunctions.clearCompanyPoint(clearPoints,function(err, result) {
-
-      //callback
+    companypointDbFunctions.clearCompanyPoint(clearPoints, function(err, result) {
       var success = false;
       var message = '';
-      if(result != null){
+      if(result != null) {
         success = result > 0;
       }
 
-      if(!success){
-        message = "Clearing points failed";
+      if(!success) {
+        message = 'Clearing points failed';
       }
 
-      reply({success: success, message: message });
+      reply({ success: success, message: message });
     }
     );
   }
@@ -372,7 +363,7 @@ routes.push({
   method: 'GET',
   path: '/companypoints',
   config: teamConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     replyWithResult(
       companypointDbFunctions.getCompanyPoints,
       [request.pre.team.id],
@@ -381,7 +372,6 @@ routes.push({
   }
 });
 
-//#Region feedback
 routes.push({
   method: 'POST',
   path: '/feedback',
@@ -389,44 +379,42 @@ routes.push({
     validate: {
       payload: {
         schoolGrade: Joi.number(),
-        answer1: Joi.string().allow(""),
-        answer2: Joi.string().allow(""),
-        answer3: Joi.string().allow(""),
-        answer4: Joi.string().allow(""),
-        answer5: Joi.string().allow("")
+        answer1: Joi.string().allow(''),
+        answer2: Joi.string().allow(''),
+        answer3: Joi.string().allow(''),
+        answer4: Joi.string().allow(''),
+        answer5: Joi.string().allow('')
       }
     }
   }),
   handler: function(request, reply) {
-    var feedback = {  schoolGrade: request.payload.schoolGrade,
+    // TODO: promisify
+    var feedback = {
+      schoolGrade: request.payload.schoolGrade,
       answer1: request.payload.answer1,
       answer2: request.payload.answer2,
       answer3: request.payload.answer3,
       answer4: request.payload.answer4,
       answer5: request.payload.answer5
     }
-    feedbackDbFunctions.saveFeedback(feedback,function(err, result){
 
-      //callback
+    feedbackDbFunctions.saveFeedback(feedback, function(err, result) {
       var success = false;
       var message = '';
 
-      if(result != null && result[0] != null){
+      if(result != null && result[0] != null) {
         success = result[0] > 0;
       }
 
-      if(!success){
-        message = "Adding feedback failed";
+      if(!success) {
+        message = 'Adding feedback failed';
       }
 
-      reply({success: success, message: message });
-    }
-    );
-  }//End of handler
-});//End of POST: /feedback
-//#EndRegion feedback
+      reply({ success: success, message: message });
+    });
+  }
+});
 
-//#Region admin routes
 routes.push({
   method: 'POST',
   path: '/admins/authenticate',
@@ -438,25 +426,18 @@ routes.push({
       }
     }
   },
-  handler: function(request, reply){
-    adminDbFunctions.findAdmin(request.payload.admin, request.payload.password ,function(success){
-
+  handler: function(request, reply) {
+    // TODO: promisify
+    adminDbFunctions.findAdmin(request.payload.admin, request.payload.password, function(success) {
       var token = '';
 
-      if(success){
+      if(success) {
         token = authUtil.createToken(1, request.payload.admin, 'admin');
       }
 
-      reply({success: success, token:token });
+      reply({ success: success, token:token });
     })
   }
 });
 
-//#EndRegion admin routes
-
-//#Region DocumentRoutes
-
-//End of POST: /teams
-
-//#EndRegion DocumentRoutes
 module.exports = routes;

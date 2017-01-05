@@ -7,8 +7,6 @@ var knex = require('./db').knexlocal;
 const config = require('./config');
 server.connection({ port: process.env.PORT || 3000 });
 
-
-
 // Register authentication
 server.register(require('hapi-auth-jwt2'), (err) => {
   server.auth.strategy('jwt', 'jwt', {
@@ -18,6 +16,7 @@ server.register(require('hapi-auth-jwt2'), (err) => {
     },
     verifyOptions: { algorithms: ['HS256'] }
   });
+
   server.route(routes);
 });
 

@@ -24,6 +24,13 @@ server.register(require('hapi-auth-jwt2'), (err) => {
     throw err;
   }
 
+  if (process.env.NODE_ENV === 'production') {
+    if (!config.secret || config.secret == 'really_secret_key') {
+      console.error('ERROR! "SUPERADA_SECRET" environment variable must be set in production!');
+      process.exit(1);
+    }
+  }
+
   server.auth.strategy('jwt', 'jwt', {
     key: config.secret,
     validateFunc: (decoded, request, callback) => {

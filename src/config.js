@@ -1,1 +1,1 @@
-exports.secret = 'really_secret_key'; //TODO CALCULATE better key
+exports.secret = process.env.SUPERADA_SECRET || 'really_secret_key';

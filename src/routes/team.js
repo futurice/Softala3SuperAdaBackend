@@ -83,32 +83,6 @@ routes.push({
 
 routes.push({
   method: 'GET',
-  path: '/companypoints',
-  config: teamConfig,
-  handler: (request, reply) => {
-    replyWithResult(
-      companypointDbFunctions.getCompanyPoints,
-      [request.pre.team.id],
-      reply
-    );
-  }
-});
-
-routes.push({
-  method: 'GET',
-  path: '/feedback',
-  config: teamConfig,
-  handler: (request, reply) => {
-    replyWithResult(
-      feedbackDbFunctions.getFeedback,
-      [request.pre.team.id],
-      reply
-    );
-  }
-});
-
-routes.push({
-  method: 'GET',
   path: '/quiz',
   config: teamConfig,
   handler: (request, reply) => {
@@ -128,6 +102,19 @@ routes.push({
     replyWithResult(
       quizDbFunctions.saveQuiz,
       [request.pre.team.id, request.payload],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'GET',
+  path: '/feedback',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      feedbackDbFunctions.getFeedback,
+      [request.pre.team.id],
       reply
     );
   }

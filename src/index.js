@@ -52,11 +52,22 @@ server.register(require('inert'), (err) => {
     throw err;
   }
 
+  // TODO: this is here for compatibility with old client versions
   server.route({
     method: 'GET',
     path: '/map.png',
     handler: (request, reply) => {
       reply.file('map.png');
+    }
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/public/{param*}',
+    handler: {
+      directory: {
+        path: '.'
+      }
     }
   });
 });

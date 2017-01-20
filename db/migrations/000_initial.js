@@ -15,14 +15,14 @@ exports.up = function(knex) {
     .createTable('Document', function(table) {
       table.increments('docId').primary();
       table.binary('file').notNullable();
-      table.integer('doctype').notNullable();
     })
 
     .createTable('Team', function(table) {
       table.increments('teamId').primary();
       table.text('teamName').notNullable().unique();
       table.text('description').notNullable();
-      table.boolean('active').defaultTo(true).notNullable();
+
+      // optional profile picture
       table.integer('docId').references('docId').inTable('Document');
     })
 
@@ -34,8 +34,17 @@ exports.up = function(knex) {
     .createTable('Company', function(table) {
       table.increments('companyId').primary();
       table.text('companyName').notNullable().unique();
-      table.text('password').notNullable();
+
+      // company logo
       table.integer('docId').references('docId').inTable('Document');
+    })
+
+    // points given by company to team
+    .createTable('CompanyPoint', function(table) {
+      table.primary(['teamId', 'companyId']);
+      table.integer('points').notNullable();
+      table.integer('teamId').references('teamId').inTable('Team');
+      table.integer('companyId').references('companyId').inTable('Company');
     })
 
     .createTable('Quiz', function(table) {
@@ -43,16 +52,14 @@ exports.up = function(knex) {
       table.integer('points').notNullable();
     })
 
-    .createTable('CompanyPoint', function(table) {
-      table.increments('pointId').primary();
-      table.integer('point').notNullable();
-      table.integer('teamId').references('teamId').inTable('Team');
-      table.integer('companyId').references('companyId').inTable('Company');
-    })
-
     .createTable('Admin', function(table) {
       table.text('email').notNullable().primary();
       table.text('password').notNullable();
+    })
+
+    .createTable('Map', function(table) {
+      table.increments('mapId').primary();
+      table.binary('image').notNullable();
     })
 
     .then(function() {
@@ -68,5 +75,4 @@ exports.down = function(knex) {
   .dropTableIfExists('CompanyPoint')
   .dropTableIfExists('Company')
   .dropTableIfExists('Team')
-  .dropTableIfExists('Document');
 };

@@ -18,11 +18,13 @@ exports.getCompany = function(name, callback){
 
 
 exports.getCompanies = function(teamId) {
-  return knex.select('Company.companyId','Company.companyName', 'Company.docId')
-    .select(knex.raw('CASE WHEN "CompanyPoint"."teamId" IS NOT NULL then TRUE ELSE FALSE END AS visited'))
-    .from("Company")
-    .joinRaw('LEFT JOIN "CompanyPoint" on "Company"."companyId" = "CompanyPoint"."companyId" AND "CompanyPoint"."teamId" = '+ teamId + ' ')
-    .whereRaw('"CompanyPoint"."teamId" = '+ teamId + ' OR "CompanyPoint"."teamId" IS NULL');
+  return knex
+    .select('Company.companyId', 'companyName', 'points', 'docId')
+    .from('CompanyPoint')
+    .rightJoin('Company', 'Company.companyId', 'CompanyPoint.companyId')
+    .where('teamId', teamId)
+    .orWhere('teamId', null) // in case company hasn't given points to team yet
+    .orderBy('Company.companyId');
 };
 
 exports.addCompany = function(company, callback){

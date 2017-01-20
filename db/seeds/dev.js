@@ -5,71 +5,77 @@ exports.seed = (knex) => (
   knex('Team').insert({
     teamName: "TeamAwesome",
     description: "we are awesome",
-    active: 1,
     docId: null
   })
 
-  .then((team) => (
-    knex('Team').insert({
-      teamName: "Nörtittäret",
-      description: "kolme innokasta pelaajaa kalliosta",
-      active: 1,
-      docId: null
-    })
-  ))
-
   .then(() => (
     knex('Team').insert({
-      teamName: "Voittajat",
-      description: "korsosta me tullaa ja kovia me ollaan! Loppuun asti tsempataan ja kaikki meitä kannustaa!",
-      active: 1,
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Team').insert({
-      teamName: "ABBA",
-      description: "awesome bravehearted beauties from Alppila",
-      active: 1,
+      teamName: "TeamAwesome2",
+      description: "we are awesome2",
       docId: null
     })
   ))
 
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Rovio",
-      password: "AngryB1rd5",
-      docId: null
-    })
-  ))
-
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Super Ada",
-      password: "AdaSupperDupper",
-      docId: null
-    })
-  ))
-
+  // TODO: logos
   .then(() => (
     knex('Company').insert({
       companyName: "Futurice",
-      password: "R4inbowUn1Corn",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Vincit",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Insinööriliitto",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Ericsson",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Reaktor",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Zalando",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Tietoturva ry",
+      docId: null
+    })
+  ))
+  .then(() => (
+    knex('Company').insert({
+      companyName: "Demi",
       docId: null
     })
   ))
 
   .then(() => (
     knex('Company').insert({
-      companyName: "XBOX",
-      password: "T1t4nFall",
+      companyName: "Koulut",
       docId: null
     })
   ))
 
   .then(() => (
     knex('CompanyPoint').insert({
-      point: 3,
+      points: 5,
       teamId: 1,
       companyId: 1
     })
@@ -77,24 +83,24 @@ exports.seed = (knex) => (
 
   .then(() => (
     knex('CompanyPoint').insert({
-      point: 5,
-      teamId: 2,
+      points: 3,
+      teamId: 1,
       companyId: 2
     })
   ))
 
   .then(() => (
     knex('CompanyPoint').insert({
-      point: 1,
-      teamId: 3,
-      companyId: 4
+      points: 2,
+      teamId: 1,
+      companyId: 3
     })
   ))
 
   .then(() => (
     knex('CompanyPoint').insert({
-      point: 4,
-      teamId: 4,
+      points: 2,
+      teamId: 2,
       companyId: 3
     })
   ))

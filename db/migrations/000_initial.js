@@ -12,7 +12,7 @@ exports.up = function(knex) {
       table.json('labels');
     })
 
-    .createTable('Document', function(table){
+    .createTable('Document', function(table) {
       table.increments('docId').primary();
       table.binary('file').notNullable();
       table.integer('doctype').notNullable();
@@ -38,14 +38,19 @@ exports.up = function(knex) {
       table.integer('docId').references('docId').inTable('Document');
     })
 
-    .createTable('CompanyPoint', function(table){
+    .createTable('Quiz', function(table) {
+      table.integer('teamId').primary().references('teamId').inTable('Team');
+      table.integer('points').notNullable();
+    })
+
+    .createTable('CompanyPoint', function(table) {
       table.increments('pointId').primary();
       table.integer('point').notNullable();
       table.integer('teamId').references('teamId').inTable('Team');
       table.integer('companyId').references('companyId').inTable('Company');
     })
 
-    .createTable('Admin', function(table){
+    .createTable('Admin', function(table) {
       table.text('email').notNullable().primary();
       table.text('password').notNullable();
     })

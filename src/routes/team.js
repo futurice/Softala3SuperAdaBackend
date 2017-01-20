@@ -2,6 +2,7 @@
 
 const authUtil = require('../utils/authUtil');
 const teamDbFunctions = require('../datasource/teamfunctions');
+const quizDbFunctions = require('../datasource/quizfunctions');
 const companyDbFunctions = require('../datasource/companyfunctions');
 const companypointDbFunctions = require('../datasource/companypointfunctions');
 const documentDbFunctions = require('../datasource/documentfunctions');
@@ -101,6 +102,32 @@ routes.push({
     replyWithResult(
       feedbackDbFunctions.getFeedback,
       [request.pre.team.id],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'GET',
+  path: '/quiz',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      quizDbFunctions.getQuiz,
+      [request.pre.team.id],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'POST',
+  path: '/quiz',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      quizDbFunctions.saveQuiz,
+      [request.pre.team.id, request.payload],
       reply
     );
   }

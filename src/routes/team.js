@@ -161,8 +161,7 @@ routes.push({
         .then((file) => {
           resized = file.toString('base64');
           return documentDbFunctions.saveDocument({
-            file,
-            doctype: 1
+            file
           })
         })
 

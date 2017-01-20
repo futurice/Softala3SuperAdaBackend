@@ -63,28 +63,32 @@ routes.push({
   }
 });
 
+
 routes.push({
   method: 'POST',
   path: '/admins/authenticate',
   config: {
     validate: {
       payload: {
-        admin: Joi.string().required(),
+        email: Joi.string().required(),
         password: Joi.string().required()
+      },
+      failAction: (request, reply, source, error) => {
+        reply(Boom.unauthorized('Incorrect email or password!'));
       }
-    }
+    },
+    pre: [
+      { method: authUtil.verifyCredentials('Admin'), assign: 'admin' }
+    ]
   },
-  handler: function(request, reply) {
-    // TODO: promisify
-    adminDbFunctions.findAdmin(request.payload.admin, request.payload.password, function(success) {
-      var token = '';
+  handler: (request, reply) => {
+    const token = authUtil.createToken(
+      undefined,
+      request.pre.admin.email,
+      'admin'
+    );
 
-      if(success) {
-        token = authUtil.createToken(1, request.payload.admin, 'admin');
-      }
-
-      reply({ success: success, token:token });
-    })
+    reply( token );
   }
 });
 

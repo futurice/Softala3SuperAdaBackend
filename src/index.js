@@ -16,7 +16,12 @@ const server = new Hapi.Server({
     }
   }
 });
-server.connection({ port: process.env.PORT || 3000 });
+server.connection({
+  port: process.env.PORT || 3000,
+  routes: {
+    cors: true
+  }
+});
 
 // Register authentication
 server.register(require('hapi-auth-jwt2'), (err) => {

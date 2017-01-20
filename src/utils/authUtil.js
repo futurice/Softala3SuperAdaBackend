@@ -1,9 +1,11 @@
 
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 var knex = require('../db').knexlocal;
-// TODO !!!!!
-var secret = 'really_secret_key';//gen 2040 bit of random stuff
+const Boom = require('boom');
+const secret = require('../config').secret;
 var jwt = require('jsonwebtoken');
+
+const saltRounds = 10;
 
 exports.checkIfTeamNameAvailable = function(req, res) {
   return true; // TODO
@@ -13,7 +15,7 @@ exports.hashPassword = function(password) { // TODO
   // Generate a salt at level 10 strength
   const promise = new Promise(
     function(resolve, reject) {
-      bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.genSalt(saltRounds, (err, salt) => {
         if (err) {
           reject(err);
         }
@@ -41,27 +43,32 @@ exports.createToken = function(id, name, scope) {
 }
 
 // Verify authentication request credentials
-exports.verifyCredentials = function(req, res) {
-  const password = req.payload.password;
-  const login = req.payload.login;
+exports.verifyCredentials = (tableName) => {
+  return (req, res) => {
+    const {email, password} = req.payload;
 
-  return knex.select('id', 'password', 'name').from('admin').where('name', login)
-    .then(function(rows) {
-      if (!rows.length) {
-        throw exeption("Bad request authutil r:48"); // not found
+    return knex.first('*')
+    .from(tableName).where('email', email)
+    .then(function(user) {
+      if (!user) {
+        return res(Boom.unauthorized('Incorrect email or password!'));
       }
 
-      const user = rows[0];
       bcrypt.compare(password, user.password, (err, isValid) => {
         if (isValid) {
           res(user);
         }
         else {
-          throw exeption("Bad request authutil r:57"); //password/user dont match
+          res(Boom.unauthorized('Incorrect email or password!'));
         }
       });
+    })
+    .catch(function(e) {
+      console.log(e);
+      res(Boom.unauthorized('Incorrect email or password!'));
     });
-}
+  }
+};
 
 // Get EMPLOYEE data from jwt
 // DO NOT USE THIS TO GET MOBILE USER DATA!

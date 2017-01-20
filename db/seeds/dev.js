@@ -151,8 +151,8 @@ exports.seed = (knex) => (
 
   .then(() => (
     knex('Admin').insert({
-      adminName: "Admin",
-      password: "Adm1n4dmin"
+      email: 'foo@bar.com',
+      password: '$2a$10$kWUT5ygKjj8XwsmgA7gTne6xx9yEzRWm2pMmwB0yndEJhRP7buOza' // 'foobar'
     })
   ))
 );

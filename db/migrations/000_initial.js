@@ -46,8 +46,7 @@ exports.up = function(knex) {
     })
 
     .createTable('Admin', function(table){
-      table.increments('adminId').primary();
-      table.text('adminName').notNullable();
+      table.text('email').notNullable().primary();
       table.text('password').notNullable();
     })
 

@@ -108,6 +108,19 @@ routes.push({
 });
 
 routes.push({
+  method: 'DELETE',
+  path: '/quiz',
+  config: teamConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      quizDbFunctions.deleteQuiz,
+      [request.pre.team.id],
+      reply
+    );
+  }
+});
+
+routes.push({
   method: 'GET',
   path: '/feedback',
   config: teamConfig,

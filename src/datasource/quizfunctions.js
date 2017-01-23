@@ -29,13 +29,13 @@ exports.saveQuiz = (teamId, payload) => {
   return knex("Quiz")
     .insert({
       teamId,
-      points: payload.points
+      points: parseInt(payload.points)
     })
     .returning('*')
     .then((results) => {
       return {
         done: true,
-        points: payload.points
+        points: parseInt(payload.points)
       };
     })
     .catch((err) => {
@@ -44,4 +44,16 @@ exports.saveQuiz = (teamId, payload) => {
       }
       throw err;
     });
+};
+
+exports.deleteQuiz = (teamId, payload) => {
+  return knex("Quiz")
+    .where('teamId', teamId)
+    .del()
+    .then((results) => {
+      return {
+        done: false,
+        points: 0
+      };
+    })
 };

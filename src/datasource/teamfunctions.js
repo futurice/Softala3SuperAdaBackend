@@ -3,12 +3,26 @@
 var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
-exports.getTeam = (name) => {
-  return knex("Team")
+exports.getTeam = (name) => (
+  knex('Team')
     .first()
     .where('teamName', name)
     .returning('*')
-};
+);
+
+exports.createTeam = (name) => (
+  knex('Team')
+    .insert({ teamName: name, description: '' })
+    .then(exports.getAllTeams)
+);
+
+exports.deleteTeam = (teamId) => (
+  console.log(teamId) ||
+  knex('Team')
+    .where('teamId', teamId)
+    .del()
+    .then(exports.getAllTeams)
+);
 
 exports.getDetails = function(teamId, callback){
   /*
@@ -60,6 +74,16 @@ exports.addTeam = function(team, callback){
       callback(err);
     });
 };
+
+exports.getAllTeams = () => (
+  knex
+    .select('Team.teamId', 'Team.teamName', 'Team.description')
+    .from('CompanyPoint')
+    .rightJoin('Team', 'Team.teamId', 'CompanyPoint.teamId')
+    .sum('points as points')
+    .groupBy('Team.teamId')
+    .orderByRaw('points DESC NULLS LAST')
+)
 
 // getTeamList: Get list of teams. takes in searchfilter
 exports.getTeamList = function(searchfilter, companyId, callback){

@@ -23,11 +23,11 @@ exports.up = function(knex) {
       table.text('description').notNullable();
 
       // optional profile picture
-      table.integer('docId').references('docId').inTable('Document');
+      table.integer('docId').references('docId').inTable('Document').onDelete('SET NULL');
     })
 
     .createTable('Feedback', function(table) {
-      table.integer('teamId').references('teamId').inTable('Team').primary();
+      table.integer('teamId').references('teamId').inTable('Team').primary().onDelete('CASCADE');
       table.json('answers').notNullable();
     })
 
@@ -36,19 +36,19 @@ exports.up = function(knex) {
       table.text('companyName').notNullable().unique();
 
       // company logo
-      table.integer('docId').references('docId').inTable('Document');
+      table.integer('docId').references('docId').inTable('Document').onDelete('SET NULL');
     })
 
     // points given by company to team
     .createTable('CompanyPoint', function(table) {
       table.primary(['teamId', 'companyId']);
       table.integer('points').notNullable();
-      table.integer('teamId').references('teamId').inTable('Team');
-      table.integer('companyId').references('companyId').inTable('Company');
+      table.integer('teamId').references('teamId').inTable('Team').onDelete('CASCADE');
+      table.integer('companyId').references('companyId').inTable('Company').onDelete('CASCADE');
     })
 
     .createTable('Quiz', function(table) {
-      table.integer('teamId').primary().references('teamId').inTable('Team');
+      table.integer('teamId').primary().references('teamId').inTable('Team').onDelete('CASCADE');
       table.integer('points').notNullable();
     })
 

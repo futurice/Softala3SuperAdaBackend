@@ -17,52 +17,43 @@ const adminConfig = {
 var routes = [];
 
 routes.push({
-  method: 'POST',
+  method: 'GET',
   path: '/teams',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'admin'
-    },
-    validate: {
-      payload: {
-        name: Joi.string().required(),
-        description: Joi.string(),
-        documentId: Joi.number()
-      }
-    },
-    pre: [
-      { method: authUtil.bindTeamData, assign: 'admin' }
-    ]
-  },
-
+  config: adminConfig,
   handler: function(request, reply) {
-    // TODO: promisify
-    var team = {
-      teamName: request.payload.name,
-      description: request.payload.description,
-      active: 1,
-      docId: request.payload.documentId
-    }
-
-    teamDbFunctions.addTeam(team, function(err, result) {
-      var success = false;
-      var message = '';
-
-      if(result != null && result[0] != null) {
-        success = result[0] > 0;
-      }
-
-      if(!success) {
-        message = 'Adding team failed. Possibly due to dublicate name';
-      }
-
-      reply({ success: success, message: message });
-    }
+    replyWithResult(
+      teamDbFunctions.getAllTeams,
+      [],
+      reply
     );
   }
 });
 
+routes.push({
+  method: 'POST',
+  path: '/teams',
+  config: adminConfig,
+  handler: function(request, reply) {
+    replyWithResult(
+      teamDbFunctions.createTeam,
+      [request.payload.teamName],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'DELETE',
+  path: '/teams/{teamId}',
+  config: adminConfig,
+  handler: function(request, reply) {
+    replyWithResult(
+      teamDbFunctions.deleteTeam,
+      [request.params.teamId],
+      reply
+    );
+  }
+});
 
 routes.push({
   method: 'POST',

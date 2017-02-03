@@ -77,12 +77,13 @@ exports.addTeam = function(team, callback){
 
 exports.getAllTeams = () => (
   knex
-    .select('Team.teamId', 'Team.teamName', 'Team.description')
+    .select('Team.teamId', 'Team.teamName', 'Team.description', 'Quiz.points as quizpoints')
     .from('CompanyPoint')
     .rightJoin('Team', 'Team.teamId', 'CompanyPoint.teamId')
-    .sum('points as points')
-    .groupBy('Team.teamId')
-    .orderByRaw('points DESC NULLS LAST')
+    .sum('CompanyPoint.points as points')
+    .groupBy('Team.teamId', 'quizpoints')
+    .leftJoin('Quiz', 'Team.teamId', 'Quiz.teamId')
+    .orderByRaw('points DESC NULLS LAST, quizpoints DESC NULLS LAST')
 )
 
 // getTeamList: Get list of teams. takes in searchfilter

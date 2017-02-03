@@ -9,6 +9,13 @@ exports.seed = (knex) => (
   })
 
   .then(() => (
+    knex('Quiz').insert({
+      teamId: 1,
+      points: 42,
+    })
+  ))
+
+  .then(() => (
     knex('Team').insert({
       teamName: "TeamAwesome2",
       description: "we are awesome2",

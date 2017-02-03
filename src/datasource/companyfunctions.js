@@ -37,12 +37,16 @@ exports.deleteCompany = (companyId) => (
 
 exports.getCompaniesAsTeam = (teamId) => (
   knex
-    .select('Company.companyId', 'companyName', 'points', 'docId')
-    .from('CompanyPoint')
-    .rightJoin('Company', 'Company.companyId', 'CompanyPoint.companyId')
-    .where('teamId', teamId)
-    .orWhere('teamId', null) // in case company hasn't given points to team yet
-    .orderBy('Company.companyId')
+    .select('Company.companyId', 'Company.companyName', 'sub.points')
+    .from(function() {
+      this
+        .select('Company.companyId', 'companyName', 'points')
+        .from('Company')
+        .leftJoin('CompanyPoint', 'CompanyPoint.companyId', 'Company.companyId')
+        .where('teamId', teamId)
+        .as('sub')
+    })
+    .rightJoin('Company', 'sub.companyId', 'Company.companyId')
 );
 
 exports.addCompany = function(company, callback){

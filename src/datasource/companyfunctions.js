@@ -16,16 +16,34 @@ exports.getCompany = function(name, callback){
     });
 };
 
+exports.getCompanies = () => (
+  knex('Company')
+    .select('companyId', 'companyName')
+    .orderBy('companyName')
+);
 
-exports.getCompanies = function(teamId) {
-  return knex
+exports.createCompany = (companyName) => (
+  knex('Company')
+    .insert({ companyName })
+    .returning('*')
+);
+
+exports.deleteCompany = (companyId) => (
+  knex('Company')
+    .where('companyId', companyId)
+    .del()
+    .then(exports.getCompanies)
+);
+
+exports.getCompaniesAsTeam = (teamId) => (
+  knex
     .select('Company.companyId', 'companyName', 'points', 'docId')
     .from('CompanyPoint')
     .rightJoin('Company', 'Company.companyId', 'CompanyPoint.companyId')
     .where('teamId', teamId)
     .orWhere('teamId', null) // in case company hasn't given points to team yet
-    .orderBy('Company.companyId');
-};
+    .orderBy('Company.companyId')
+);
 
 exports.addCompany = function(company, callback){
   knex("Company").insert(company)

@@ -61,7 +61,7 @@ routes.push({
   config: teamConfig,
   handler: function(request, reply) {
     replyWithResult(
-      companyDbFunctions.getCompanies,
+      companyDbFunctions.getCompaniesAsTeam,
       [request.pre.team.id],
       reply
     );

@@ -6,7 +6,6 @@ const companyDbFunctions = require('../datasource/companyfunctions.js');
 const companypointDbFunctions = require('../datasource/companypointfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
-const sharp = require('sharp');
 const _ = require('lodash');
 const replyWithResult = require('../utils/restUtil').replyWithResult;
 

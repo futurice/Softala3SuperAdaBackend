@@ -10,7 +10,7 @@ const feedbackDbFunctions = require('../datasource/feedbackfunctions');
 
 const Joi = require('joi');
 const Boom = require('boom');
-const sharp = require('sharp');
+const Jimp = require('jimp');
 const _ = require('lodash');
 const replyWithResult = require('../utils/restUtil').replyWithResult;
 
@@ -167,10 +167,12 @@ routes.push({
 
       promises.push(
         // resize image to thumbnail size
-        sharp(buf)
-        .resize(512, 512)
-        .png()
-        .toBuffer()
+        Jimp.read(buf)
+        .then((image) => (
+          image
+            .resize(512, 512)
+            .getBuffer(Jimp.MIME_PNG)
+        ))
         .then((file) => {
           resized = file.toString('base64');
           return documentDbFunctions.saveDocument({

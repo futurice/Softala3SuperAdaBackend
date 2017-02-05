@@ -5,7 +5,6 @@ const teamDbFunctions = require('../datasource/teamfunctions.js');
 const companyDbFunctions = require('../datasource/companyfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
-const sharp = require('sharp');
 const _ = require('lodash');
 const replyWithResult = require('../utils/restUtil').replyWithResult;
 const Jimp = require('jimp');
@@ -28,7 +27,7 @@ routes.push({
   method: 'GET',
   path: '/admin/teams',
   config: adminConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     replyWithResult(
       teamDbFunctions.getAllTeams,
       [],
@@ -41,7 +40,7 @@ routes.push({
   method: 'POST',
   path: '/admin/teams',
   config: adminConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     replyWithResult(
       teamDbFunctions.createTeam,
       [request.payload.teamName],
@@ -54,7 +53,7 @@ routes.push({
   method: 'DELETE',
   path: '/admin/teams/{teamId}',
   config: adminConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     replyWithResult(
       teamDbFunctions.deleteTeam,
       [request.params.teamId],
@@ -68,7 +67,7 @@ routes.push({
   method: 'GET',
   path: '/admin/companies',
   config: adminConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     replyWithResult(
       companyDbFunctions.getCompanies,
       [],
@@ -81,7 +80,7 @@ routes.push({
   method: 'POST',
   path: '/admin/companies',
   config: adminConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     let companyId = null;
     companyDbFunctions.createCompany(request.payload.companyName)
     .then((results) => {
@@ -121,7 +120,7 @@ routes.push({
   method: 'DELETE',
   path: '/admin/companies/{companyId}',
   config: adminConfig,
-  handler: function(request, reply) {
+  handler: (request, reply) => {
     replyWithResult(
       companyDbFunctions.deleteCompany,
       [request.params.companyId],

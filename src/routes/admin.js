@@ -3,7 +3,6 @@
 const authUtil = require('../utils/authUtil');
 const teamDbFunctions = require('../datasource/teamfunctions.js');
 const companyDbFunctions = require('../datasource/companyfunctions.js');
-const adminDbFunctions = require('../datasource/adminfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
 const sharp = require('sharp');
@@ -14,7 +13,7 @@ const path = require('path');
 
 const adminConfig = {
   auth: { strategy: 'jwt', scope: 'admin' },
-  pre: [ { method: authUtil.bindTeamData, assign: 'admin' } ]
+  pre: [ { method: authUtil.bindUserData, assign: 'admin' } ]
 };
 
 let circle = null;

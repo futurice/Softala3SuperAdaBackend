@@ -4,8 +4,8 @@ var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 var Boom = require('boom');
 
-exports.getQuiz = (teamId) => {
-  return knex("Quiz")
+exports.getQuiz = (teamId) => (
+  knex("Quiz")
     .first()
     .where('teamId', teamId)
     .returning('*')
@@ -22,11 +22,11 @@ exports.getQuiz = (teamId) => {
           points: result.points
         }
       }
-    });
-};
+    })
+);
 
-exports.saveQuiz = (teamId, payload) => {
-  return knex("Quiz")
+exports.saveQuiz = (teamId, payload) => (
+  knex("Quiz")
     .insert({
       teamId,
       points: parseInt(payload.points)
@@ -43,17 +43,15 @@ exports.saveQuiz = (teamId, payload) => {
         return Boom.forbidden('Quiz already done');
       }
       throw err;
-    });
-};
+    })
+);
 
-exports.deleteQuiz = (teamId, payload) => {
-  return knex("Quiz")
+exports.deleteQuiz = (teamId, payload) => (
+  knex("Quiz")
     .where('teamId', teamId)
     .del()
-    .then((results) => {
-      return {
-        done: false,
-        points: 0
-      };
-    })
-};
+    .then((results) => ({
+      done: false,
+      points: 0
+    }))
+);

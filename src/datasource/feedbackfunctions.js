@@ -27,18 +27,18 @@ const upsertItem = function(tableName, conflictTarget, itemData) {
     .then(result => result.rows[0]);
 };
 
-exports.saveFeedback = (teamId, feedback) => {
-  return upsertItem('Feedback', 'teamId', {
+exports.saveFeedback = (teamId, feedback) => (
+  upsertItem('Feedback', 'teamId', {
     answers: JSON.stringify(feedback.answers),
     teamId
   })
   .then((results) => {
     return exports.getFeedback(teamId);
-  });
-};
+  })
+);
 
-exports.getFeedback = (teamId) => {
-  return knex('Question')
+exports.getFeedback = (teamId) => (
+  knex('Question')
   .then((questions) => {
     return knex('Feedback')
     .first()
@@ -54,5 +54,5 @@ exports.getFeedback = (teamId) => {
         return question;
       });
     });
-  });
-};
+  })
+);

@@ -12,45 +12,10 @@ const replyWithResult = require('../utils/restUtil').replyWithResult;
 
 const companyConfig = {
   auth: { strategy: 'jwt', scope: 'company' },
-  pre: [ { method: authUtil.bindTeamData, assign: 'company' } ]
+  pre: [ { method: authUtil.bindUserData, assign: 'company' } ]
 };
 
 var routes = [];
-
-routes.push({
-  method: 'POST',
-  path: '/teamlist',
-  config: {
-    validate: {
-      payload: {
-        searchfilter: Joi.string().allow('')
-      }
-    },
-    auth: {
-      strategy: 'jwt',
-      scope: 'company'
-    },
-    pre: [
-      { method: authUtil.bindTeamData, assign: 'company' }
-    ]
-  },
-  handler: function(request, reply){
-    // TODO: promisify
-    var companyId = request.pre.company.id;
-
-    teamDbFunctions.getTeamList(request.payload.searchfilter, companyId, function(err, result) {
-
-      result.forEach(function(item, index) {
-        if(item != null && item.file != null) {
-          item.file = item.file.toString('base64')
-        }
-      });
-
-      reply({ err: err , result: result });
-    });
-  }
-});
-
 
 routes.push({
   method: 'POST',
@@ -59,34 +24,49 @@ routes.push({
     validate: {
       payload: {
         name: Joi.string().required()
+      },
+      failAction: (request, reply, source, error) => {
+        reply(Boom.unauthorized('Company not found.'));
       }
     }
   },
-  handler: function(request, reply) {
-    // TODO: promisify
-    var success = false;
-    var token = '';
-
-    companyDbFunctions.getCompany(request.payload.name, function(err, result) {
-      var success = false;
-      var id = 0;
-      if(result != null && result[0] != 'undefined') {
-        success = result[0].companyId > 0;
-        id = result[0].companyId;
+  handler: (request, reply) => {
+    companyDbFunctions.getCompany(request.payload.name)
+    .then((company) => {
+      if (!company) {
+        return reply(Boom.unauthorized('Company not found.'));
       }
 
-      if(success) {
-        token = authUtil.createToken(id, request.payload.name, 'company');
-      }
-      reply({ success: success, token: token });
-    }
+      const token = authUtil.createToken(
+        company.companyId,
+        request.payload.name,
+        'company'
+      );
+
+      reply( token );
+    })
+    .catch((err) => {
+      reply(Boom.badImplementation(err));
+    });
+  }
+});
+
+routes.push({
+  method: 'GET',
+  path: '/company/teamlist',
+  config: companyConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      teamDbFunctions.getTeamList,
+      [request.query.filter, request.pre.company.id],
+      reply
     );
   }
 });
 
 routes.push({
   method: 'POST',
-  path: '/companypoint',
+  path: '/company/companypoint',
   config: {
     auth: {
       strategy: 'jwt',
@@ -99,7 +79,7 @@ routes.push({
       }
     },
     pre: [
-      { method: authUtil.bindTeamData, assign: 'company' }
+      { method: authUtil.bindUserData, assign: 'company' }
     ]
   },
 
@@ -130,7 +110,7 @@ routes.push({
 
 routes.push({
   method: 'POST',
-  path: '/clearpoints',
+  path: '/company/clearpoints',
   config: {
     auth: {
       strategy: 'jwt',
@@ -142,7 +122,7 @@ routes.push({
       }
     },
     pre: [
-      { method: authUtil.bindTeamData, assign: 'company' }
+      { method: authUtil.bindUserData, assign: 'company' }
     ]
   },
   handler: function(request, reply) {

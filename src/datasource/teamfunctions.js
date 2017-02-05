@@ -17,21 +17,14 @@ exports.createTeam = (name) => (
 );
 
 exports.deleteTeam = (teamId) => (
-  console.log(teamId) ||
   knex('Team')
     .where('teamId', teamId)
     .del()
     .then(exports.getAllTeams)
 );
 
-exports.getDetails = function(teamId, callback){
-  /*
-    SELECT "Team"."description", "Document"."file"
-    FROM "Team"
-    LEFT JOIN "Document" on "Document"."docId" = "Team"."docId"
-    WHERE "Team"."teamId" = 27;
-    */
-  return knex('Team')
+exports.getDetails = (teamId) => (
+  knex('Team')
     .first()
     .where({"teamId": teamId })
     .leftJoin('Document', 'Document.docId', 'Team.docId')
@@ -39,46 +32,12 @@ exports.getDetails = function(teamId, callback){
     .then((result) => {
       result.file = result.file ? 'data:image/png;base64,' + result.file.toString('base64') : null;
       return result;
-    });
-};
-
-exports.addTeam = function(team, callback){
-  knex.select("teamId")
-    .from("Team")
-    .where({"teamName": team.teamName })
-    .then(function(result) {
-      var exists = false; // Team name exists?
-      if(result != null && typeof result[0] !== 'undefined' && result[0].teamId != 'undefined'){
-        exists = result[0].teamId > 0;
-      }
-      if(exists){
-        callback("Duplicate name", null);
-      }else{
-        knex("Team").insert(team)
-          .returning("teamId")
-          .then(function(re) {
-            callback(null, re);
-          })
-          .catch(function(err) {
-            if(logErrors){
-              console.log('Something went wrong!', err);
-            }
-            callback(err);
-          });
-      }
     })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
-    });
-};
+);
 
 exports.getAllTeams = () => (
-  knex
+  knex('CompanyPoint')
     .select('Team.teamId', 'Team.teamName', 'Team.description', 'Quiz.points as quizpoints')
-    .from('CompanyPoint')
     .rightJoin('Team', 'Team.teamId', 'CompanyPoint.teamId')
     .sum('CompanyPoint.points as points')
     .groupBy('Team.teamId', 'quizpoints')
@@ -86,6 +45,14 @@ exports.getAllTeams = () => (
     .orderByRaw('points DESC NULLS LAST, quizpoints DESC NULLS LAST')
 )
 
+exports.getTeamList = (filter, companyId) => (
+  knex('Team')
+    .select('*')
+    .leftJoin('CompanyPoint', 'CompanyPoint.teamId', 'Team.teamId')
+)
+
+/*
+// TODO: refactor
 // getTeamList: Get list of teams. takes in searchfilter
 exports.getTeamList = function(searchfilter, companyId, callback){
   var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,\/{}|\\":<>\?]/); //unacceptable chars
@@ -113,21 +80,22 @@ exports.getTeamList = function(searchfilter, companyId, callback){
       callback(err);
     });
 };
+*/
 
-exports.attachDocumentToTeam = (docId, teamId) => {
-  return knex('Team')
+exports.attachDocumentToTeam = (docId, teamId) => (
+  knex('Team')
     .where('teamId', teamId)
-    .update('docId', docId);
-};
+    .update('docId', docId)
+);
 
-exports.updateTeamDescription = (teamId, description) => {
-  return knex("Team")
-    .where('teamId', '=', teamId)
+exports.updateTeamDescription = (teamId, description) => (
+  knex('Team')
+    .where('teamId', teamId)
     .update({
-      description: description
+      description
     })
     .returning('*')
     .then((results) => {
       return results[0];
-    });
-};
+    })
+);

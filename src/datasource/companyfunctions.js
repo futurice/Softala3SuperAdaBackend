@@ -3,18 +3,11 @@
 var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
-exports.getCompany = function(name, callback){
-  knex.select("companyId").from("Company").where({"companyName": name })
-    .then(function(results) {
-      callback(null, results);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
-    });
-};
+exports.getCompany = (companyName) => (
+  knex('Company')
+    .first('companyId')
+    .where('companyName', companyName)
+);
 
 exports.getCompanies = () => (
   knex('Company')
@@ -48,17 +41,3 @@ exports.getCompaniesAsTeam = (teamId) => (
     })
     .rightJoin('Company', 'sub.companyId', 'Company.companyId')
 );
-
-exports.addCompany = function(company, callback){
-  knex("Company").insert(company)
-    .returning("companyId")
-    .then(function(re) {
-      callback(null, re);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
-    });
-};

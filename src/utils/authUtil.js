@@ -6,12 +6,10 @@ const secret = require('../config').secret;
 var jwt = require('jsonwebtoken');
 
 const saltRounds = 10;
+const bearerRegex = /Bearer\s+(.*)/i;
 
-exports.checkIfTeamNameAvailable = function(req, res) {
-  return true; // TODO
-}
-
-exports.hashPassword = function(password) { // TODO
+/*
+exports.hashPassword = function(password) { // TODO can't create admin accounts
   // Generate a salt at level 10 strength
   const promise = new Promise(
     function(resolve, reject) {
@@ -31,25 +29,30 @@ exports.hashPassword = function(password) { // TODO
   );
   return promise;
 }
+*/
 
 let jwtExpirationHours = 24;
+
 // Crate a json web token for user id and name
-exports.createToken = function(id, name, scope) {
+exports.createToken = (id, name, scope) => ({
   // Sign the JWT
-  return {
-    token: jwt.sign({id: id, name: name, scope: scope}, secret, {algorithm: 'HS256', expiresIn: jwtExpirationHours + 'h'}),
-    expiresIn: jwtExpirationHours * 60 * 60 * 1000 // in milliseconds
-  };
-}
+  token: jwt.sign({
+    id,
+    name,
+    scope
+  }, secret, {
+    algorithm: 'HS256',
+    expiresIn: jwtExpirationHours + 'h'
+  }),
+  expiresIn: jwtExpirationHours * 60 * 60 * 1000 // in milliseconds
+})
 
 // Verify authentication request credentials
-exports.verifyCredentials = (tableName) => {
-  return (req, res) => {
-    const {email, password} = req.payload;
-
-    return knex.first('*')
-    .from(tableName).where('email', email)
-    .then(function(user) {
+exports.verifyCredentials = (tableName) => ({ payload: { email, password }}, res) => (
+  knex(tableName)
+    .first()
+    .where('email', email)
+    .then((user) => {
       if (!user) {
         return res(Boom.unauthorized('Incorrect email or password!'));
       }
@@ -57,50 +60,19 @@ exports.verifyCredentials = (tableName) => {
       bcrypt.compare(password, user.password, (err, isValid) => {
         if (isValid) {
           res(user);
-        }
-        else {
+        } else {
           res(Boom.unauthorized('Incorrect email or password!'));
         }
       });
     })
-    .catch(function(e) {
-      console.log(e);
+    .catch((err) => {
+      console.log(err);
       res(Boom.unauthorized('Incorrect email or password!'));
-    });
-  }
-};
-
-// Get EMPLOYEE data from jwt
-// DO NOT USE THIS TO GET MOBILE USER DATA!
-exports.bindAdminData = function(req, res) {
-  /*
-  try {
-    const bearerToken = req.headers.authorization.slice(7);
-    const decoded = jwt.verify(bearerToken, secret, {
-      ignoreExpiration: false
-    });
-    const employeeId = decoded.id;
-    const name = decoded.name;
-
-    console.log(decoded);
-
-    knex.first('id').from('Team').where({id: employeeId, name: name})
-    .then(function(employee) {
-      if (!employee) {
-      } else {
-      }
     })
-    .catch(function(err) {
-    });
-  } catch (e) {
-
-  }*/
-}
-
-const bearerRegex = /Bearer\s+(.*)/i;
+);
 
 // Get data from jwt
-exports.bindTeamData = function(req, res){
+exports.bindUserData = (req, res) => {
   let bearerToken = req.headers.authorization;
 
   // strip "Bearer" word from header if present

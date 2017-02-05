@@ -16,7 +16,7 @@ const replyWithResult = require('../utils/restUtil').replyWithResult;
 
 const teamConfig = {
   auth: { strategy: 'jwt', scope: 'team' },
-  pre: [ { method: authUtil.bindTeamData, assign: 'team' } ]
+  pre: [ { method: authUtil.bindUserData, assign: 'team' } ]
 };
 
 var routes = [];

@@ -3,6 +3,7 @@
 var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
+// TODO: rewrite
 exports.addCompanyPoint = function(companypoint, callback) {
   knex.select('*')
     .from('CompanyPoint')
@@ -44,6 +45,7 @@ exports.addCompanyPoint = function(companypoint, callback) {
     })
 };
 
+// TODO: rewrite
 exports.clearCompanyPoint = function(clearPoints, callback) {
   knex.select('*')
     .from('CompanyPoint')
@@ -72,6 +74,7 @@ exports.clearCompanyPoint = function(clearPoints, callback) {
     })
 };
 
+// TODO: unused?
 exports.getCompanyPoints = function(teamId) {
   return knex.sum('point')
     .from('CompanyPoint')

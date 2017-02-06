@@ -8,7 +8,7 @@ const documentfunctions = require('./documentfunctions');
 
 let circle = null;
 
-Jimp.read(path.join(__dirname, '..', '..', 'assets', 'circle.png'))
+Jimp.read(path.join(__dirname, '..', '..', 'assets', 'companyCircle.png'))
 .then((image) => { circle = image });
 
 exports.getCompanyByName = (companyName) => (

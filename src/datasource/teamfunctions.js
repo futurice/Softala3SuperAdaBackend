@@ -2,6 +2,14 @@
 
 var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
+const path = require('path');
+const Jimp = require('jimp');
+const documentfunctions = require('./documentfunctions');
+
+let circle = null;
+
+Jimp.read(path.join(__dirname, '..', '..', 'assets', 'teamCircle.png'))
+.then((image) => { circle = image });
 
 exports.getTeam = (name) => (
   knex('Team')
@@ -117,3 +125,37 @@ exports.updateTeamDescription = (teamId, description) => (
       return results[0];
     })
 );
+
+exports.updateTeamImage = (teamId, image) => {
+  const buf = Buffer.from(image, 'base64');
+  let resized;
+
+  // resize image to thumbnail size
+  return Jimp.read(buf)
+  .then((image) => (
+    new Promise((resolve, reject) => (
+      image
+      .resize(512, 512)
+      .mask(circle, 0, 0)
+      .getBuffer(Jimp.MIME_PNG, (err, data) => {
+        resolve(data);
+      })
+    ))
+  ))
+  .then((file) => {
+    resized = file.toString('base64');
+    return documentfunctions.saveDocument(file)
+  })
+  .then((docId) => (
+    // Attach document to team relation
+    exports.attachDocumentToTeam(docId, teamId)
+  ))
+
+  .then((result) => {
+    if (!result) {
+      throw 'Unknown error while attaching document to team. result was: ' + result;
+    }
+
+    return { file: 'data:image/png;base64,' + resized };
+  })
+}

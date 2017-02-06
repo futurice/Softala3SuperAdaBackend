@@ -162,35 +162,7 @@ routes.push({
       promises.push(teamDbFunctions.updateTeamDescription(request.pre.team.id, request.payload.description));
     }
     if (request.payload.image) {
-      const buf = Buffer.from(request.payload.image, 'base64');
-      let resized;
-
-      promises.push(
-        // resize image to thumbnail size
-        Jimp.read(buf)
-        .then((image) => (
-          image
-            .resize(512, 512)
-            .getBuffer(Jimp.MIME_PNG)
-        ))
-        .then((file) => {
-          resized = file.toString('base64');
-          return documentDbFunctions.saveDocument(file)
-        })
-
-        .then((docId) => (
-          // Attach document to team relation
-          teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id)
-        ))
-
-        .then((result) => {
-          if (!result) {
-            throw 'Unknown error while attaching document to team. result was: ' + result;
-          }
-
-          return { file: 'data:image/png;base64,' + resized };
-        })
-      );
+      promises.push(teamDbFunctions.updateTeamImage(request.pre.team.id, request.payload.image));
     }
 
     Promise.all(promises)

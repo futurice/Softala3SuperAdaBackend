@@ -51,17 +51,22 @@ server.register(require('hapi-auth-jwt2'), (err) => {
   server.route(routes);
 });
 
+const renderedMapHandler = (request, reply) => {
+  mapfunctions.getMap('rendered')
+  .then((file) => (
+    file ? reply(file).header('Content-Type', 'image/png') : reply(Boom.notFound())
+  ));
+};
+
 // Endpoint for rendered map
 server.route({
   method: 'GET',
   path: '/public/map.png',
-  handler: (request, reply) => {
-    mapfunctions.getMap('rendered')
-    .then((file) => (
-      file ? reply(file).header('Content-Type', 'image/png') : reply(Boom.notFound())
-    ));
-  }
+  handler: renderedMapHandler,
 });
+// TODO: Fix this in app when we can release new version, app is using '/map.png' instead of
+// '/public/map.png'!
+server.route({ method: 'GET', path: '/map.png', handler: renderedMapHandler });
 
 // Endpoint for map template
 server.route({

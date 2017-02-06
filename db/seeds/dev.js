@@ -35,6 +35,21 @@ exports.seed = (knex) => {
     })
   ))
 
+  .then(() => saveFile('map_initial.png'))
+  .then((docId) => (
+    knex('Map').insert({
+      mapName: 'rendered',
+      docId
+    })
+  ))
+  .then(() => saveFile('map_initial_template.png'))
+  .then((docId) => (
+    knex('Map').insert({
+      mapName: 'template',
+      docId
+    })
+  ))
+
   .then(() => saveFile(path.join('companyLogos', 'futurice.png')))
   .then((docId) => (
     knex('Company').insert({

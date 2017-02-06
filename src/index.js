@@ -58,7 +58,7 @@ server.route({
   handler: (request, reply) => {
     mapfunctions.getMap('rendered')
     .then((file) => (
-      file ? reply(file) : reply(Boom.notFound())
+      file ? reply(file).header('Content-Type', 'image/png') : reply(Boom.notFound())
     ));
   }
 });
@@ -70,7 +70,7 @@ server.route({
   handler: (request, reply) => {
     mapfunctions.getMap('template')
     .then((file) => (
-      file ? reply(file) : reply(Boom.notFound())
+      file ? reply(file).header('Content-Type', 'image/png') : reply(Boom.notFound())
     ));
   }
 });
@@ -91,12 +91,12 @@ server.route({
     if (companyId !== null) {
       companyfunctions.getCompanyLogo(companyId[1])
       .then((file) => (
-        file ? reply(file) : reply(Boom.notFound())
+        file ? reply(file).header('Content-Type', 'image/png') : reply(Boom.notFound())
       ));
     } else if (teamId !== null) {
       teamfunctions.getTeamLogo(teamId[1])
       .then((file) => (
-        file ? reply(file) : reply(Boom.notFound())
+        file ? reply(file).header('Content-Type', 'image/png') : reply(Boom.notFound())
       ));
     } else {
       reply(Boom.notFound());

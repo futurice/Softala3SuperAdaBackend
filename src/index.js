@@ -2,10 +2,14 @@
 
 const Hapi = require('hapi');
 const Path = require('path');
+const Boom = require('boom');
 
 const routes = require('./routes');
 const config = require('./config');
 var knex = require('./db').knexlocal;
+const companyfunctions = require('./datasource/companyfunctions');
+const teamfunctions = require('./datasource/teamfunctions');
+const mapfunctions = require('./datasource/mapfunctions');
 
 const server = new Hapi.Server({
   connections: {
@@ -47,29 +51,57 @@ server.register(require('hapi-auth-jwt2'), (err) => {
   server.route(routes);
 });
 
-server.register(require('inert'), (err) => {
-  if (err) {
-    throw err;
+// Endpoint for rendered map
+server.route({
+  method: 'GET',
+  path: '/public/map.png',
+  handler: (request, reply) => {
+    mapfunctions.getMap('rendered')
+    .then((file) => (
+      file ? reply(file) : reply(Boom.notFound())
+    ));
   }
+});
 
-  // TODO: this is here for compatibility with old client versions
-  server.route({
-    method: 'GET',
-    path: '/map.png',
-    handler: (request, reply) => {
-      reply.file('map.png');
-    }
-  });
+// Endpoint for map template
+server.route({
+  method: 'GET',
+  path: '/public/map_template.png',
+  handler: (request, reply) => {
+    mapfunctions.getMap('template')
+    .then((file) => (
+      file ? reply(file) : reply(Boom.notFound())
+    ));
+  }
+});
 
-  server.route({
-    method: 'GET',
-    path: '/public/{param*}',
-    handler: {
-      directory: {
-        path: '.'
-      }
+const companyLogoRegex = /^company(\d+)\.png$/;
+const teamPictureRegex = /^team(\d+)\.png$/;
+
+// Endpoint for files in DB
+server.route({
+  method: 'GET',
+  path: '/public/{file}',
+  handler: (request, reply) => {
+    const fileName = request.params.file;
+
+    const companyId = companyLogoRegex.exec(fileName);
+    const teamId = teamPictureRegex.exec(fileName);
+
+    if (companyId !== null) {
+      companyfunctions.getCompanyLogo(companyId[1])
+      .then((file) => (
+        file ? reply(file) : reply(Boom.notFound())
+      ));
+    } else if (teamId !== null) {
+      teamfunctions.getTeamLogo(teamId[1])
+      .then((file) => (
+        file ? reply(file) : reply(Boom.notFound())
+      ));
+    } else {
+      reply(Boom.notFound());
     }
-  });
+  }
 });
 
 server.start((err) => {

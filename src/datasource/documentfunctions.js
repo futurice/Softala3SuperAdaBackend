@@ -3,8 +3,15 @@
 var knex = require('../db').knexlocal;
 var logErrors = require('../db').logErrors;
 
-exports.saveDocument = (doc) => (
+exports.saveDocument = (file) => (
   knex('Document')
-    .insert(doc)
+    .insert({ file })
     .returning('docId')
+    .then((results) => results[0])
+)
+
+exports.getDocument = (docId) => (
+  knex('Document')
+    .first('docId')
+    .where({ docId })
 )

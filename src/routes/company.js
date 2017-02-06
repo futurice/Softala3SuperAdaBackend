@@ -30,7 +30,7 @@ routes.push({
     }
   },
   handler: (request, reply) => {
-    companyDbFunctions.getCompany(request.payload.name)
+    companyDbFunctions.getCompanyByName(request.payload.name)
     .then((company) => {
       if (!company) {
         return reply(Boom.unauthorized('Company not found.'));
@@ -56,7 +56,7 @@ routes.push({
   config: companyConfig,
   handler: (request, reply) => {
     replyWithResult(
-      teamDbFunctions.getTeamList,
+      teamDbFunctions.getTeamsAsCompany,
       [request.query.filter, request.pre.company.id],
       reply
     );

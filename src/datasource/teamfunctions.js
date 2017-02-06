@@ -35,6 +35,14 @@ exports.getDetails = (teamId) => (
     })
 );
 
+exports.getTeamLogo = (teamId) => (
+  knex('Team')
+    .first('file')
+    .where('teamId', teamId)
+    .rightJoin('Document', 'Team.docId', 'Document.docId')
+    .then((results) => results && results.file)
+);
+
 exports.getAllTeams = () => (
   knex('CompanyPoint')
     .select('Team.teamId', 'Team.teamName', 'Team.description', 'Quiz.points as quizpoints')
@@ -45,10 +53,20 @@ exports.getAllTeams = () => (
     .orderByRaw('points DESC NULLS LAST, quizpoints DESC NULLS LAST')
 )
 
-exports.getTeamList = (filter, companyId) => (
-  knex('Team')
-    .select('*')
-    .leftJoin('CompanyPoint', 'CompanyPoint.teamId', 'Team.teamId')
+// TODO: filter
+exports.getTeamsAsCompany = (filter, companyId) => (
+  knex
+    .select('Team.teamId', 'Team.teamName', 'Team.description', 'Team.docId', 'sub.points')
+    .from(function() {
+      // Get all points that company has given
+      this
+        .select('Team.teamId', 'teamName', 'description', 'docId', 'points')
+        .from('Team')
+        .leftJoin('CompanyPoint', 'CompanyPoint.teamId', 'Team.teamId')
+        .where('companyId', companyId)
+        .as('sub')
+    })
+    .rightJoin('Team', 'sub.teamId', 'Team.teamId')
 )
 
 /*

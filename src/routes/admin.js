@@ -7,18 +7,12 @@ const Joi = require('joi');
 const Boom = require('boom');
 const _ = require('lodash');
 const replyWithResult = require('../utils/restUtil').replyWithResult;
-const Jimp = require('jimp');
 const path = require('path');
 
 const adminConfig = {
   auth: { strategy: 'jwt', scope: 'admin' },
   pre: [ { method: authUtil.bindUserData, assign: 'admin' } ]
 };
-
-let circle = null;
-
-Jimp.read(path.join(__dirname, '..', '..', 'public', 'circle.png'))
-.then((image) => { circle = image });
 
 var routes = [];
 
@@ -80,32 +74,18 @@ routes.push({
   method: 'POST',
   path: '/admin/companies',
   config: adminConfig,
-  handler: (request, reply) => {
+  handler: (request, reply) => (
+    replyWithResult(
+      companyDbFunctions.createCompany,
+      [request.payload.companyName, request.payload.logo],
+      reply
+    )
+  )
+});
+
+/*
     let companyId = null;
     companyDbFunctions.createCompany(request.payload.companyName)
-    .then((results) => {
-      const logo = request.payload.logo;
-
-      // parse the base64 encoded logo and save to file
-      const matches = logo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      const file = {};
-
-      if (matches.length !== 3) {
-        throw new Error('Invalid input string');
-      }
-
-      file.type = matches[1];
-      file.data = new Buffer(matches[2], 'base64');
-
-      companyId = results[0].companyId;
-      return Jimp.read(file.data);
-    })
-    .then((image) => (
-      image
-        .resize(180, 180)
-        .mask(circle, 0, 0)
-        .write(path.join(__dirname, '..', '..', 'public', 'company' + companyId + '.png'))
-    ))
     .then(companyDbFunctions.getCompanies)
     .then((result) => {
       reply(result);
@@ -115,6 +95,7 @@ routes.push({
     })
   }
 });
+*/
 
 routes.push({
   method: 'DELETE',

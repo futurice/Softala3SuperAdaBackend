@@ -58,7 +58,7 @@ exports.up = function(knex) {
     })
 
     .createTable('Map', function(table) {
-      table.increments('mapId').primary();
+      table.text('mapName').primary();
       table.binary('image').notNullable();
     })
 

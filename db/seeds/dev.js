@@ -1,8 +1,20 @@
 /*eslint-disable func-names*/
 'use strict';
 
-exports.seed = (knex) => (
-  knex('Team').insert({
+const path = require('path');
+const fs = require('fs');
+
+exports.seed = (knex) => {
+  const saveFile = (assetPath) => {
+    const file = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', assetPath));
+
+    return knex('Document')
+      .insert({ file })
+      .returning('docId')
+      .then((results) => results[0])
+  }
+
+  return knex('Team').insert({
     teamName: "TeamAwesome",
     description: "we are awesome",
     docId: null
@@ -23,60 +35,75 @@ exports.seed = (knex) => (
     })
   ))
 
-  // TODO: logos
-  .then(() => (
+  .then(() => saveFile(path.join('companyLogos', 'futurice.png')))
+  .then((docId) => (
     knex('Company').insert({
       companyName: "Futurice",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Vincit",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Insinööriliitto",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Ericsson",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Reaktor",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Zalando",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Tietoturva ry",
-      docId: null
-    })
-  ))
-  .then(() => (
-    knex('Company').insert({
-      companyName: "Demi",
-      docId: null
+      docId
     })
   ))
 
-  .then(() => (
+  .then(() => saveFile(path.join('companyLogos', 'vincit.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Vincit",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'insinooriliitto.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Insinööriliitto",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'ericsson.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Ericsson",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'reaktor.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Reaktor",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'zalando.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Zalando",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'ttry.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Tietoturva ry",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'demi.png')))
+  .then((docId) => (
+    knex('Company').insert({
+      companyName: "Demi",
+      docId
+    })
+  ))
+
+  .then(() => saveFile(path.join('companyLogos', 'koulut.png')))
+  .then((docId) => (
     knex('Company').insert({
       companyName: "Koulut",
-      docId: null
+      docId
     })
   ))
 
@@ -168,4 +195,4 @@ exports.seed = (knex) => (
       password: '$2a$10$kWUT5ygKjj8XwsmgA7gTne6xx9yEzRWm2pMmwB0yndEJhRP7buOza' // 'foobar'
     })
   ))
-);
+};

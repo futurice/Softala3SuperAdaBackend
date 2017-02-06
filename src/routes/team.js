@@ -175,21 +175,13 @@ routes.push({
         ))
         .then((file) => {
           resized = file.toString('base64');
-          return documentDbFunctions.saveDocument({
-            file
-          })
+          return documentDbFunctions.saveDocument(file)
         })
 
-        .then((result) => {
-          if(!result) {
-            throw 'Unknown error while adding document. result was: ' + result;
-          }
-
-          const docId = result[0];
-
+        .then((docId) => (
           // Attach document to team relation
-          return teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id);
-        })
+          teamDbFunctions.attachDocumentToTeam(docId, request.pre.team.id)
+        ))
 
         .then((result) => {
           if (!result) {

@@ -65,85 +65,26 @@ routes.push({
 
 routes.push({
   method: 'POST',
-  path: '/company/companypoint',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'company'
-    },
-    validate: {
-      payload: {
-        teamId: Joi.number().required(),
-        point: Joi.number().required()
-      }
-    },
-    pre: [
-      { method: authUtil.bindUserData, assign: 'company' }
-    ]
-  },
-
-  handler: function(request, reply) {
-    // TODO: promisify
-    var companypoint = {
-      teamId: request.payload.teamId,
-      companyId: request.pre.company.id,
-      point: request.payload.point
-    }
-
-    companypointDbFunctions.addCompanyPoint(companypoint, function(err, result) {
-      var success = false;
-      var message = '';
-
-      if(result != null) {
-        success = result > 0;
-      }
-
-      if(!success) {
-        message = 'Adding points failed';
-      }
-
-      reply({ success: success, message: message });
-    });
+  path: '/company/companypoint/{teamId}',
+  config: companyConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      companypointDbFunctions.addCompanyPoint,
+      [request.pre.company.id, request.params.teamId, request.payload.points],
+      reply
+    );
   }
 });
 
 routes.push({
-  method: 'POST',
-  path: '/company/clearpoints',
-  config: {
-    auth: {
-      strategy: 'jwt',
-      scope: 'company'
-    },
-    validate: {
-      payload: {
-        teamId: Joi.number().required()
-      }
-    },
-    pre: [
-      { method: authUtil.bindUserData, assign: 'company' }
-    ]
-  },
-  handler: function(request, reply) {
-    // TODO: promisify
-    var clearPoints = {
-      companyId: request.pre.company.id,
-      teamId: request.payload.teamId
-    }
-
-    companypointDbFunctions.clearCompanyPoint(clearPoints, function(err, result) {
-      var success = false;
-      var message = '';
-      if(result != null) {
-        success = result > 0;
-      }
-
-      if(!success) {
-        message = 'Clearing points failed';
-      }
-
-      reply({ success: success, message: message });
-    }
+  method: 'DELETE',
+  path: '/company/companypoint/{teamId}',
+  config: companyConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      companypointDbFunctions.clearCompanyPoint,
+      [request.pre.company.id, request.params.teamId],
+      reply
     );
   }
 });

@@ -146,11 +146,68 @@ exports.seed = (knex) => {
     })
   ))
 
+  // test filling all companypoints for teamId 2
   .then(() => (
     knex('CompanyPoint').insert({
-      points: 2,
+      points: 5,
+      teamId: 2,
+      companyId: 1
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 2
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
       teamId: 2,
       companyId: 3
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 4
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 5
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 6
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 7
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 8
+    })
+  ))
+  .then(() => (
+    knex('CompanyPoint').insert({
+      points: 5,
+      teamId: 2,
+      companyId: 9
     })
   ))
 

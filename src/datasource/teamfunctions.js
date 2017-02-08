@@ -77,37 +77,6 @@ exports.getTeamsAsCompany = (filter, companyId) => (
     .rightJoin('Team', 'sub.teamId', 'Team.teamId')
 )
 
-/*
-// TODO: refactor
-// getTeamList: Get list of teams. takes in searchfilter
-exports.getTeamList = function(searchfilter, companyId, callback){
-  var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,\/{}|\\":<>\?]/); //unacceptable chars
-  if (pattern.test(searchfilter)) {
-    searchfilter ="";//Empty string for safety
-    if(logErrors){
-      console.log("Illegal chars in search field")
-    }
-  }
-
-  var lowercaseSF = searchfilter.toLowerCase()
-  knex.select('Team.*', 'CompanyPoint.point', 'Document.file')
-    .from("Team")
-    .joinRaw('LEFT JOIN "CompanyPoint" on "Team"."teamId" = "CompanyPoint"."teamId" AND "CompanyPoint"."companyId" = '+ companyId+ ' ')
-    .leftJoin('Document', 'Document.docId', 'Team.docId')
-    .whereRaw(' LOWER( "teamName" ) LIKE ' + '\'%'+lowercaseSF+'%\'')
-    .orderBy('Team.teamName', 'asc')
-    .then(function(results) {
-      callback(null, results);
-    })
-    .catch(function(err) {
-      if(logErrors){
-        console.log('Something went wrong!', err);
-      }
-      callback(err);
-    });
-};
-*/
-
 exports.attachDocumentToTeam = (docId, teamId) => (
   knex('Team')
     .where('teamId', teamId)

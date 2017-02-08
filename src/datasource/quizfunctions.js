@@ -1,7 +1,6 @@
 'use strict';
 
 var knex = require('../db').knexlocal;
-var logErrors = require('../db').logErrors;
 var Boom = require('boom');
 
 exports.getQuiz = (teamId) => (

@@ -1,7 +1,6 @@
 'use strict';
 
 var knex = require('../db').knexlocal;
-var logErrors = require('../db').logErrors;
 
 const upsertItem = require('../utils/dbUtil').upsertItem;
 

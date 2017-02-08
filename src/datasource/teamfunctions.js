@@ -1,7 +1,6 @@
 'use strict';
 
 var knex = require('../db').knexlocal;
-var logErrors = require('../db').logErrors;
 const path = require('path');
 const Jimp = require('jimp');
 const documentfunctions = require('./documentfunctions');

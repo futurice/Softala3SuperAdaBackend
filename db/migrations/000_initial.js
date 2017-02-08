@@ -63,7 +63,10 @@ exports.up = function(knex) {
     })
 
     .then(function() {
-        //Indexes triggers etc here
+      return knex.raw('create unique index companyname_case_insensitive on "Company" (lower("companyName"))');
+    })
+    .then(function() {
+      return knex.raw('create unique index teamname_case_insensitive on "Team" (lower("teamName"))');
     });
 };
 

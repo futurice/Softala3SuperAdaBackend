@@ -14,7 +14,7 @@ Jimp.read(path.join(__dirname, '..', '..', 'assets', 'teamCircle.png'))
 exports.getTeam = (name) => (
   knex('Team')
     .first()
-    .where('teamName', name)
+    .where('teamName', 'ilike', name)
     .returning('*')
 );
 

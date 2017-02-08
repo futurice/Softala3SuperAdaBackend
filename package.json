@@ -9,7 +9,8 @@
     "db:init": "knex migrate:latest",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
-    "db:seed": "knex seed:run"
+    "db:seed-dev": "knex seed:run --env development",
+    "db:seed": "knex seed:run --env production"
   },
   "author": "Futurice",
   "license": "MIT",

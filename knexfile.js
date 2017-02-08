@@ -22,20 +22,21 @@ const ALL_ENVIRONMENTS = Object.freeze({
     tableName: 'knex_migrations',
     directory: 'db/migrations'
   },
-  seeds: {
-    directory: 'db/seeds'
-  }
 });
 
 // Feel free to create any number of other environments.
 // The ones below are a best attempt at sensible defaults.
 module.exports = {
   // Developer's local machine
-  development: ALL_ENVIRONMENTS,
-  // Unit and integration test environment
-  test: ALL_ENVIRONMENTS,
-  // Shared test/qa/staging/preproduction
-  staging: ALL_ENVIRONMENTS,
+  development: Object.assign({}, ALL_ENVIRONMENTS, {
+    seeds: {
+      directory: 'db/seeds-dev',
+    },
+  }),
   // Production environment
-  production: ALL_ENVIRONMENTS
+  production: Object.assign({}, ALL_ENVIRONMENTS, {
+    seeds: {
+      directory: 'db/seeds-prod',
+    },
+  })
 };

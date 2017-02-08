@@ -42,7 +42,7 @@ routes.push({
         'company'
       );
 
-      reply( token );
+      reply(Object.assign({}, token, company));
     })
     .catch((err) => {
       reply(Boom.badImplementation(err));

@@ -12,7 +12,7 @@ Jimp.read(path.join(__dirname, '..', '..', 'assets', 'companyCircle.png'))
 
 exports.getCompanyByName = (companyName) => (
   knex('Company')
-    .first('companyId')
+    .first('companyId', 'companyName')
     .where('companyName', 'ilike', companyName)
 );
 

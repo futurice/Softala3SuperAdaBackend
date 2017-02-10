@@ -6,6 +6,7 @@ exports.replyWithResult = (handler, args, reply) => {
   handler.apply(this, args)
     .then(reply)
     .catch((err) => {
+      console.error(err);
       reply(Boom.badImplementation(err));
     });
 };

@@ -40,7 +40,9 @@ exports.getAllFeedback = () => {
   return knex('Question')
   .then((_questions) => {
     questions = _questions;
-    return knex('Feedback').returning('*')
+    return knex('Feedback')
+      .select('Feedback.teamId', 'teamName', 'answers')
+      .leftJoin('Team', 'Team.teamId', 'Feedback.teamId')
   })
   .then((allFeedback) => (
     allFeedback.map((feedback, i) => {

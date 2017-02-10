@@ -72,12 +72,12 @@ routes.push({
 
 routes.push({
   method: 'DELETE',
-  path: '/admin/feedback/{feedbackId}',
+  path: '/admin/feedback/{teamId}',
   config: adminConfig,
   handler: (request, reply) => {
     replyWithResult(
       feedbackDbFunctions.deleteFeedback,
-      [request.params.feedbackId],
+      [request.params.teamId],
       reply
     );
   }

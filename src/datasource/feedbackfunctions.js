@@ -56,9 +56,9 @@ exports.getAllFeedback = () => {
   ))
 };
 
-exports.deleteFeedback = (feedbackId) => (
+exports.deleteFeedback = (teamId) => (
   knex('Feedback')
-  .where({ feedbackId })
+  .where({ teamId })
   .del()
   .then(exports.getAllFeedback)
 );

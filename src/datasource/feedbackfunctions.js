@@ -10,11 +10,11 @@ exports.saveFeedback = (teamId, feedback) => (
     teamId
   })
   .then((results) => {
-    return exports.getFeedback(teamId);
+    return exports.getFeedbackAsTeam(teamId);
   })
 );
 
-exports.getFeedback = (teamId) => (
+exports.getFeedbackAsTeam = (teamId) => (
   knex('Question')
   .then((questions) => {
     return knex('Feedback')
@@ -32,4 +32,31 @@ exports.getFeedback = (teamId) => (
       });
     });
   })
+);
+
+exports.getAllFeedback = () => {
+  let questions;
+
+  return knex('Question')
+  .then((_questions) => {
+    questions = _questions;
+    return knex('Feedback').returning('*')
+  })
+  .then((allFeedback) => (
+    allFeedback.map((feedback, i) => {
+      feedback.answers = feedback.answers.map((answer, i) => ({
+        answer: answer,
+        questionText: questions[i].questionText,
+      }))
+
+      return feedback;
+    })
+  ))
+};
+
+exports.deleteFeedback = (feedbackId) => (
+  knex('Feedback')
+  .where({ feedbackId })
+  .del()
+  .then(exports.getAllFeedback)
 );

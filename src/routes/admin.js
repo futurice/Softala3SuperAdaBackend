@@ -3,6 +3,7 @@
 const authUtil = require('../utils/authUtil');
 const teamDbFunctions = require('../datasource/teamfunctions.js');
 const companyDbFunctions = require('../datasource/companyfunctions.js');
+const feedbackDbFunctions = require('../datasource/feedbackfunctions.js');
 const Joi = require('joi');
 const Boom = require('boom');
 const _ = require('lodash');
@@ -51,6 +52,32 @@ routes.push({
     replyWithResult(
       teamDbFunctions.deleteTeam,
       [request.params.teamId],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'GET',
+  path: '/admin/feedback',
+  config: adminConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      feedbackDbFunctions.getAllFeedback,
+      [],
+      reply
+    );
+  }
+});
+
+routes.push({
+  method: 'DELETE',
+  path: '/admin/feedback/{feedbackId}',
+  config: adminConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      feedbackDbFunctions.deleteFeedback,
+      [request.params.feedbackId],
       reply
     );
   }

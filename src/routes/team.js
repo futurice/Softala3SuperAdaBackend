@@ -126,7 +126,7 @@ routes.push({
   config: teamConfig,
   handler: (request, reply) => {
     replyWithResult(
-      feedbackDbFunctions.getFeedback,
+      feedbackDbFunctions.getFeedbackAsTeam,
       [request.pre.team.id],
       reply
     );

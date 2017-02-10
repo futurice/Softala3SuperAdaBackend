@@ -103,7 +103,7 @@ exports.updateTeamImage = (teamId, image) => {
   .then((image) => (
     new Promise((resolve, reject) => (
       image
-      .scaleToFit(512, 512)
+      .cover(512, 512)
       .mask(circle, 0, 0)
       .getBuffer(Jimp.MIME_PNG, (err, data) => {
         resolve(data);

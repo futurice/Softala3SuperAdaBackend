@@ -55,6 +55,7 @@ exports.getAllTeams = () => (
     .select('Team.teamId', 'Team.teamName', 'Team.description', 'Quiz.points as quizpoints')
     .rightJoin('Team', 'Team.teamId', 'CompanyPoint.teamId')
     .sum('CompanyPoint.points as points')
+    .count('CompanyPoint.points as checkpointsCompleted')
     .groupBy('Team.teamId', 'quizpoints')
     .leftJoin('Quiz', 'Team.teamId', 'Quiz.teamId')
     .orderByRaw('points DESC NULLS LAST, quizpoints DESC NULLS LAST')

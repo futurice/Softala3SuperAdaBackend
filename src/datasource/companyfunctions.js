@@ -30,6 +30,17 @@ exports.getCompanies = () => (
     .orderBy('companyName')
 );
 
+exports.updateCompany = (companyId, x, y) => {
+  console.log('Updating the position of the company: ' +companyId +" to (" +x +"," +y +")")
+  return knex('Company')
+    .where('companyId', companyId)
+    .update({
+      positionX: x,
+      positionY: y,
+    })
+    .then(exports.getCompanies)
+}
+
 exports.createCompany = (companyName, logo) => {
   // parse the base64 encoded logo into buffer
   const matches = logo.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);

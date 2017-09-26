@@ -125,6 +125,19 @@ routes.push({
 */
 
 routes.push({
+  method: 'PUT',
+  path: '/admin/companies/{companyId}',
+  config: adminConfig,
+  handler: (request, reply) => {
+    replyWithResult(
+      companyDbFunctions.updateCompany,
+      [request.params.companyId, request.payload.x, request.payload.y],
+      reply
+    );
+  }
+});
+
+routes.push({
   method: 'DELETE',
   path: '/admin/companies/{companyId}',
   config: adminConfig,

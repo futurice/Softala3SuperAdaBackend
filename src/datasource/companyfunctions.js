@@ -26,7 +26,7 @@ exports.getCompanyLogo = (companyId) => (
 
 exports.getCompanies = () => (
   knex('Company')
-    .select('companyId', 'companyName')
+    .select('companyId', 'companyName', 'positionX', 'positionY')
     .orderBy('companyName')
 );
 
@@ -87,7 +87,7 @@ exports.deleteCompany = (companyId) => (
 
 exports.getCompaniesAsTeam = (teamId) => (
   knex
-    .select('Company.companyId', 'Company.companyName', 'sub.points')
+    .select('Company.companyId', 'Company.companyName', 'Company.positionX', 'Company.positionY', 'sub.points')
     .from(function() {
       // Get all points that team has been given by companies
       this

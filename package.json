@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
-    "db:init": "knex migrate:latest",
+    "db:wipe": "node wipe_db.js",
+    "db:init": "npm run db:wipe && npm run db:migrate && npm run db:seed",
+    "db:init-dev": "npm run db:wipe && npm run db:migrate && npm run db:seed-dev",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
     "db:seed-dev": "knex seed:run --env development",

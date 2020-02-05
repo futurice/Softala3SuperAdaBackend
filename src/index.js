@@ -11,21 +11,16 @@ const companyfunctions = require('./datasource/companyfunctions');
 const teamfunctions = require('./datasource/teamfunctions');
 const mapfunctions = require('./datasource/mapfunctions');
 
-const server = new Hapi.Server({
-  connections: {
-    routes: {
-      files: {
-        relativeTo: Path.join(__dirname, '..', 'public')
-      }
-    }
-  }
-});
-server.connection({
+const server = new Hapi.server({
   port: process.env.PORT || 3000,
   routes: {
-    cors: true
+   cors: true
   }
 });
+
+server.settings.files({
+  relativeTo: Path.join(__dirname, '..', 'public')
+})
 
 // Register authentication
 server.register(require('hapi-auth-jwt2'), (err) => {
